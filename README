@@ -1,0 +1,4 @@
+Software needed:
+	- Needs haskell, python-cluster
+	* TO INSTALL ON UBUNTU *
+	> sudo apt-get install ghc python-cluster
