@@ -1,4 +1,8 @@
 Software needed:
 	- Needs haskell, python-cluster
-	* TO INSTALL ON UBUNTU *
-	> sudo apt-get install ghc python-cluster
+		* TO INSTALL ON UBUNTU *
+		> sudo apt-get install ghc python-cluster
+	- Needs the python module "basemap" for mercator projections
+		* TO INSTALL ON UBUNTU *
+		> sudo apt-get install libgeos-dev
+		> sudo pip install http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
