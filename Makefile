@@ -1,4 +1,4 @@
-OBJS=nubber Chandra-Clusters-nodups.tsv
+OBJS=nubber Chandra-nodups.tsv Chandra-XMM-combo-nodups.tsv
 
 all: $(OBJS)
 
@@ -12,4 +12,4 @@ nubber : nubber.hs
 	./nubber $< > $@
 
 clean:
-	rm -f *.o *.hi $(OBJS)
+	rm -f *.o *.hi *.pyc $(OBJS)
