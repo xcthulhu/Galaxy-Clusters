@@ -8,14 +8,6 @@ from sets import Set
 
 def degToRad(x) : return x / 360. * 2 * pi
 
-def radToDeg(x) : return x / (2 * pi) * 360.
-
-# Crappy formula for great circle distance based on law of cosines
-# (for debugging Vincenty formula code - do not use!)
-def greatCircleD(phi1,lam1,phi2,lam2) :
-	dlam = lam1 - lam2
-	return acos(sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(dlam))
-
 # Vincenty's formula for great circle distance 
 # (same as greatCircleD but numerically stable)
 def Vincenty(phi1,lam1,phi2,lam2) :
@@ -54,15 +46,6 @@ def pairs(L):
 	while L:
 		i = L.pop()
 		for j in L: yield i, j
-
-# Fixes a list of lists and singletons so it's a list of lists
-def fixLoLHelper(badlol):
-	for x in badlol:
-		if isinstance(x,list): yield x
-		else : yield [x]
-
-def fixLoL(badlol):
-	return list(fixLoLHelper(badlol))
 
 # Takes a scipy.cluster.hierarchy.ClusterNode (ie, a tree)
 # and returns a lazy list of leaves
@@ -105,10 +88,6 @@ def mkClusters(filename,clusterLvl=.012) :
 	f.close()
 	return map(len,myCluster)
 	#return part
-
-# Computes the Longitude and Latitude pairs from derived cluster
-def clsToLonLat(cls):
-	return [[float(c[1]),float(c[2])] for c in cls ]
 
 # Write clusters out to directories
 def writeClusters(cls,clustersDir="clusters"):
