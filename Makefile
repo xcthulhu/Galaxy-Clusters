@@ -20,6 +20,7 @@ clusters : master.tsv
 	./make_catalogue.py $(SZ) $< clusters/map-UNCROPPED.pdf
 	pdfcrop clusters/map-UNCROPPED.pdf clusters/map.pdf
 	rm clusters/map-UNCROPPED.pdf
+	cd clusters && find . -iname "*.tsv" -exec wc -l '{}' \; | sort -nr > hits.txt
 
 clean:
 	rm -rf *.o *.hi *.pyc *.pdf $(OBJS) $(GEN_TSVs)
