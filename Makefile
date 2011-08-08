@@ -1,5 +1,5 @@
 OBJS=nubber master.tsv clusters
-GEN_TSVs=Chandra-nodups.tsv XMM-Crossref-Chandra-nodups.tsv
+GEN_TSVs=Chandra-nodups.tsv #XMM-Crossref-Chandra-nodups.tsv
 SZ=5
 
 all: $(GEN_TSVs) $(OBJS)
