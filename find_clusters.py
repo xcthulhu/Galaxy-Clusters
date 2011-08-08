@@ -86,8 +86,7 @@ def mkClusters(filename,clusterLvl=.012) :
 	#x = data[0]
 	#myCluster = [ [ x for y in p if memF(x,y) ] for p in part ]
 	f.close()
-	return map(len,myCluster)
-	#return part
+	return myCluster
 
 # Write clusters out to directories
 def writeClusters(cls,clustersDir="clusters"):
@@ -104,6 +103,6 @@ def writeClusters(cls,clustersDir="clusters"):
 	
 if __name__ == "__main__":
 	print "Computing Clusters"
-	print mkClusters(sys.argv[1])
-	#print "Writing Cluster Directories"
-	#writeClusters(cls)
+	cls=mkClusters(sys.argv[1])
+	print "Writing Cluster Directories"
+	writeClusters(cls)
