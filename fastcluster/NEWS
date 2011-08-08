@@ -1,0 +1,37 @@
+fastcluster: Fast hierarchical clustering routines for R and Python
+
+Copyright © 2011 Daniel Müllner
+<http://math.stanford.edu/~muellner>
+
+
+Version history
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Version 1.0.0, 03/14/2011:
+
+  • Initial release, dependent on Rcpp. Not available on CRAN.
+
+Version 1.0.1, 03/15/2011:
+
+  • Removed the dependence on Rcpp; only R's original C interface is used.
+
+Version 1.0.2, 03/17/2011:
+
+  • File DESCRIPTION: Fixed a typo
+
+Version 1.0.3, 03/20/2011:
+
+  • File README: Removed the warning about false results from the flashClust
+    package since the new flashClust version 1.01 has this error corrected.
+
+  • Cleaned the test file fastcluster_test.R up. (No dependence on the MASS
+    package any more)
+
+Version 1.0.4, 03/21/2011:
+
+  • Changed the name of the external function from the outdated "Rcpp_linkage"
+    to "fastcluster".
+
+  • Registered the external function "fastcluster" in R.
+
+  • Configured the C header inclusions to work on Fedora (thanks to Peter
+    Langfelder).

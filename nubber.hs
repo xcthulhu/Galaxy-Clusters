@@ -14,8 +14,9 @@ splitOn f l@(x:xs)
 cleanWhiteSpace str = reverse $ dropWhile (==' ') $ reverse $ dropWhile (==' ') str
 
 main = do
-  fn:_ <- getArgs
+  colstr:fn:_ <- getArgs
   cnts <- readFile fn
   let lines = map (splitOn (=='\t')) $ splitOn (=='\n') cnts
-  let clean_lines = nubBy (\x y -> (x !! 3) == (y !! 3)) $ (map.map) cleanWhiteSpace lines
+  let col = read colstr
+  let clean_lines = nubBy (\x y -> (x !! col) == (y !! col)) $ (map.map) cleanWhiteSpace lines
   putStr (intercalate "\n" (map (intercalate "\t") clean_lines))

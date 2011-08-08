@@ -9,7 +9,7 @@ nubber : nubber.hs
 	ghc --make $<
 
 %-nodups.tsv : %-valid.tsv nubber
-	./nubber $< > $@
+	./nubber 3 $< > $@
 
 clean:
 	rm -f *.o *.hi *.pyc $(OBJS)
