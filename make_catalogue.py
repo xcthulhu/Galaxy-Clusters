@@ -11,7 +11,7 @@ if __name__ == "__main__":
 	writeClusters(cls)
         print "Culling clusters smaller than", sys.argv[1], "..."
         bigguys = filter(lambda x : len(x) > int(sys.argv[1]), cls)
-        pts = map(lambda x : list(dataToArray(x)[0]) + [len(x)],bigguys)
+        pts = map(lambda x : list(dataToArray(x)[0]) + [len(x),x[0][9]],bigguys)
         print "Making Plot..."
         plot_clusters(pts,sys.argv[3],float(sys.argv[1]))
         print "Wrote:",sys.argv[3]

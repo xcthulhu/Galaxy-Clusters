@@ -13,9 +13,10 @@ def plot_clusters(pts,filename,scale):
 	m.drawparallels(np.arange(-90.,120.,15.),color='white',linewidth=.5)
 	m.drawmeridians(np.arange(0.,420.,15.),color='white',linewidth=.5)
 	m.drawmapboundary(fill_color='black')
-	for px,py,sz in pts:
+	for px,py,sz,name in pts:
 		x,y = m(px,py)
 		plt.plot(x,y,'*',color='yellow',markersize=scale*log(sz,scale))
+		plt.text(x,y,name,color='red',size=2)
 	#plt.title("Galaxy Clusters")
 	plt.savefig(filename)
 
@@ -24,7 +25,7 @@ if __name__ == "__main__":
 	cls = mkClusters(sys.argv[2])
 	print "Culling clusters smaller than", sys.argv[1], "..."
 	bigguys = filter(lambda x : len(x) > int(sys.argv[1]), cls)
-	pts = map(lambda x : list(dataToArray(x)[0]) + [len(x)],bigguys)
+	pts = map(lambda x : list(dataToArray(x)[0]) + [len(x),x[0][9]],bigguys)
 	print "Making Plot..."
 	plot_clusters(pts,sys.argv[3],float(sys.argv[1]))
 	print "Wrote:",sys.argv[3]

@@ -3,6 +3,13 @@ Software needed:
 		* OS X needs fink installed
 			* As a rule, we use python easy_install for python modules that don't have external requirements
 		
+
+	- Install Python (v2.7)
+		- Ubuntu
+			> sudo apt-get install python
+		- OS X
+			> fink install python 
+
 	- SciPy python module
 		- Ubuntu 
 			> sudo apt-get install python-scipy
@@ -14,7 +21,7 @@ Software needed:
 
 	- Haskell
 		- Ubuntu
-			> sudo apt-get install python-scipy python-numpy python-matplotlib ghc
+			> sudo apt-get install ghc
 		- OS X 
 			> fink install ghc
 
@@ -22,13 +29,13 @@ Software needed:
 		- Ubuntu
 			> sudo apt-get install python-matplotlib
 		- OS X
-			> sudo easy_install matplotlib
+			> sudo easy_install-2.7 http://sourceforge.net/projects/matplotlib/files/matplotlib/matplotlib-1.0.1/matplotlib-1.0.1.tar.gz/download
 
-	- Cluster python module
+	- Fastcluster python module
 		- Ubuntu
-			> sudo apt-get install python-cluster
+			> sudo pip install ./fastcluster
 		- OS X
-			> sudo easy_install cluster
+			> sudo easy_install-2.7 ./fastcluster
 
 	- Basemap python module
 		- Ubuntu 
@@ -37,4 +44,4 @@ Software needed:
 
 		- OS X
 			> fink install libgeos2
-			> sudo env GEOS_DIR=/sw easy_install install cluster http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
+			> sudo env GEOS_DIR=/sw easy_install-2.7 http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download

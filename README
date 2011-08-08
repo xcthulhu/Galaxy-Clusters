@@ -1,0 +1,12 @@
+valid_lines.py
+	A python script which takes vizier TSV files and cleans up garbage entries
+
+nubber.hs
+	A haskell program for removing duplicate entries from TSVs that have been output by valid-lines.py
+
+find_clusters.py
+	A python script/module for cataloging clusters in a tsv 
+		* needs a clean TSV - use valid_lines and nubber to clean
+
+clustersize.py
+	A python script that computes the great circle size of a (clean) TSV handed as an argument

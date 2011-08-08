@@ -78,7 +78,7 @@ def mkClusters(filename,clusterLvl=.012) :
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 	vecs = dataToArray(data)
-	tree = to_tree(linkage(vecs, metric=myVincenty))
+	tree = to_tree(linkage(vecs, method='complete', metric=myVincenty))
 	lol = getLevel(tree, clusterLvl)
 	part = [ map(lambda n : vecs[n], x) for x in lol ]
 	memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
@@ -88,7 +88,7 @@ def mkClusters(filename,clusterLvl=.012) :
 
 # Clusters the entry in a filename
 # Default is pretty wide
-def mkClusters(filename,clusterLvl=.012) :
+def mkClusters(filename,clusterLvl=.003) :
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 	vecs = dataToArray(data)
