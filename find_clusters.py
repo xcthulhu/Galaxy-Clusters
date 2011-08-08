@@ -83,10 +83,23 @@ def mkClusters(filename,clusterLvl=.012) :
 	part = [ map(lambda n : vecs[n], x) for x in lol ]
 	memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
 	myCluster = modData(data, part, memF)
-	#x = data[0]
-	#myCluster = [ [ x for y in p if memF(x,y) ] for p in part ]
 	f.close()
 	return myCluster
+
+# Clusters the entry in a filename
+# Default is pretty wide
+def mkClusters(filename,clusterLvl=.012) :
+	f = open(filename)
+	data = list(csv.reader(f, delimiter='\t'))
+	vecs = dataToArray(data)
+	tree = to_tree(linkage(vecs, metric=myVincenty))
+	lol = getLevel(tree, clusterLvl)
+	part = [ map(lambda n : vecs[n], x) for x in lol ]
+	memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
+	myCluster = modData(data, part, memF)
+	f.close()
+	return myCluster
+
 
 # Write clusters out to directories
 def writeClusters(cls,clustersDir="clusters"):
@@ -99,7 +112,6 @@ def writeClusters(cls,clustersDir="clusters"):
 		print >>f, "\n".join(map(lambda x: "\t".join(x),c))
 		print "Wrote:", newfn 
 		f.close()
-
 	
 if __name__ == "__main__":
 	print "Computing Clusters"
