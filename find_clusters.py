@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import csv,sys,os
+import csv,sys,os,cPickle
 import numpy as np
 from math import sqrt,sin,cos,atan2,pi,acos
 from fastcluster import *
@@ -91,12 +91,62 @@ def mkClusters(filename,clusterLvl=.012) :
 def mkClusters(filename,clusterLvl=.003) :
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
-	vecs = dataToArray(data)
-	tree = to_tree(linkage(vecs, metric=myVincenty))
-	lol = getLevel(tree, clusterLvl)
-	part = [ map(lambda n : vecs[n], x) for x in lol ]
-	memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
-	myCluster = modData(data, part, memF)
+
+	# We check if pickled data-products exist before computing
+	if os.path.exists(filename + ".vec") :
+		vecs_file = open(filename + ".vec", 'r')
+		print "Loading vector from file..."
+		vecs = cPickle.load(vecs_file)
+		vecs_file.close()
+	else:
+		print "Computing vectors..."
+		vecs = dataToArray(data)
+		print "Saving vectors to file..."
+		vecs_file = open(filename + ".vec", 'w')
+		cPickle.dump(vecs, vecs_file)
+		vecs_file.close()
+
+	if os.path.exists(filename + ".tree") :
+		print "Loading tree from file..."
+		tree_file = open(filename + ".tree", 'r')
+		tree = cPickle.load(tree_file)
+		tree_file.close()
+	else:
+		print "Computing tree..."
+		tree = to_tree(linkage(vecs, metric=myVincenty))
+		print "Saving tree to file..."
+		tree_file = open(filename + ".tree", 'w')
+		cPickle.dump(tree, tree_file)
+		tree_file.close()
+
+	if os.path.exists(filename + ("%d.part" % clusterLvl)) :
+		print "Loading partition from file..."
+		part_file = open(filename + ("%d.part" % clusterLvl), 'r')
+		part = cPickle.load(part_file)
+		part_file.close()
+	else:
+		print "Computing partition..."
+		lol = getLevel(tree, clusterLvl)
+		part = [ map(lambda n : vecs[n], x) for x in lol ]
+		print "Saving partition to file..."
+		part_file = open(filename + ("%d.part" % clusterLvl), 'w')
+		cPickle.dump(part, part_file)
+		part_file.close()
+
+	if os.path.exists(filename + ("%d.cls" % clusterLvl)) :
+		print "Loading cluster from file..."
+		cluster_file = open(filename + ("%d.cls" % clusterLvl), 'r')
+		myCluster = cPickle.load(cluster_file)
+		cluster_file.close()
+	else :
+		print "Computing cluster..."
+		memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
+		myCluster = modData(data, part, memF)
+		cluster_file = open(filename + ("%d.cls" % clusterLvl), 'w')
+		print "Saving cluster to file..."
+		cPickle.dump(myCluster, cluster_file)
+		cluster_file.close()
+
 	f.close()
 	return myCluster
 
