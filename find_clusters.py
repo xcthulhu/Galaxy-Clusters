@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import csv,sys,os,cPickle
+import csv,sys,os,cPickle,ephem
 import numpy as np
 from math import sqrt,sin,cos,atan2,pi,acos
 from fastcluster import *
@@ -8,25 +8,25 @@ from sets import Set
 
 def degToRad(x) : return x / 360. * 2 * pi
 
+def EqToRad(ra,dec) :
+	c = ephem.Equatorial(ra,dec,epoch=ephem.J2000)
+	return (float(c.ra),float(c.dec))
+
 # Vincenty's formula for great circle distance 
 # (same as greatCircleD but numerically stable)
-def Vincenty(phi1,lam1,phi2,lam2) :
+def Vincenty((phi1,lam1),(phi2,lam2)) :
 	dlam = lam1 - lam2
 	return atan2(sqrt((cos(phi2)*sin(dlam))**2 + (cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam))**2),
                      sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(dlam))
-
-# Crazy version of Vincenty formula that takes 2-vectors of degrees as input and outputs radians
-def myVincenty(v1,v2) :
-	return Vincenty(*map(degToRad, [v1[0],v1[1],v2[0],v2[1]]))
 
 # Takes two tsv lines with RA and DEC (in degrees) as columns 1 and 2 
 # and computes great arc length (in Radians)
 def tsvDist(line1,line2) : 
 	return Vincenty(*map((lambda x: degToRad(float(x))), line1[1:3]+line2[1:3]))
 
-# Converts a line of data into a numpy array
+# Converts a line of data into a pair of coordinates
 def lineToPair(l) : 
-	return (float(l[1]),float(l[2]))
+	return EqToRad(l[1],l[2])
 
 # Converts derived data from a tsv to an array of (unique) vectors
 def dataToArray(data) :
@@ -72,29 +72,15 @@ def modData(data, part, memF) :
 				break
 	return l
 	
-# Clusters the entry in a filename
+# Clusters the entries in a file
 # Default is pretty wide
-def mkClusters(filename,clusterLvl=.012) :
-	f = open(filename)
-	data = list(csv.reader(f, delimiter='\t'))
-	vecs = dataToArray(data)
-	tree = to_tree(linkage(vecs, method='complete', metric=myVincenty))
-	lol = getLevel(tree, clusterLvl)
-	part = [ map(lambda n : vecs[n], x) for x in lol ]
-	memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
-	myCluster = modData(data, part, memF)
-	f.close()
-	return myCluster
-
-# Clusters the entry in a filename
-# Default is pretty wide
-def mkClusters(filename,clusterLvl=.003) :
+def mkClusters(filename,clusterLvl=.004,cpDir="checkpoints") :
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 
 	# We check if pickled data-products exist before computing
-	if os.path.exists(filename + ".vec") :
-		vecs_file = open(filename + ".vec", 'r')
+	if os.path.exists(cpDir + "/" + filename + ".vec") :
+		vecs_file = open(cpDir + "/" + filename + ".vec", 'r')
 		print "Loading vector from file..."
 		vecs = cPickle.load(vecs_file)
 		vecs_file.close()
@@ -102,26 +88,26 @@ def mkClusters(filename,clusterLvl=.003) :
 		print "Computing vectors..."
 		vecs = dataToArray(data)
 		print "Saving vectors to file..."
-		vecs_file = open(filename + ".vec", 'w')
+		vecs_file = open(cpDir + "/" + filename + ".vec", 'w')
 		cPickle.dump(vecs, vecs_file)
 		vecs_file.close()
 
-	if os.path.exists(filename + ".tree") :
+	if os.path.exists(cpDir + "/" + filename + ".tree") :
 		print "Loading tree from file..."
-		tree_file = open(filename + ".tree", 'r')
+		tree_file = open(cpDir + "/" + filename + ".tree", 'r')
 		tree = cPickle.load(tree_file)
 		tree_file.close()
 	else:
 		print "Computing tree..."
-		tree = to_tree(linkage(vecs, metric=myVincenty))
+		tree = to_tree(linkage(vecs, metric=Vincenty, method='complete'))
 		print "Saving tree to file..."
-		tree_file = open(filename + ".tree", 'w')
+		tree_file = open(cpDir + "/" + filename + ".tree", 'w')
 		cPickle.dump(tree, tree_file)
 		tree_file.close()
 
-	if os.path.exists(filename + ("%d.part" % clusterLvl)) :
+	if os.path.exists(cpDir + "/" + filename + ("%f.part" % clusterLvl)) :
 		print "Loading partition from file..."
-		part_file = open(filename + ("%d.part" % clusterLvl), 'r')
+		part_file = open(cpDir + "/" + filename + ("%f.part" % clusterLvl), 'r')
 		part = cPickle.load(part_file)
 		part_file.close()
 	else:
@@ -129,21 +115,21 @@ def mkClusters(filename,clusterLvl=.003) :
 		lol = getLevel(tree, clusterLvl)
 		part = [ map(lambda n : vecs[n], x) for x in lol ]
 		print "Saving partition to file..."
-		part_file = open(filename + ("%d.part" % clusterLvl), 'w')
+		part_file = open(cpDir + "/" + filename + ("%f.part" % clusterLvl), 'w')
 		cPickle.dump(part, part_file)
 		part_file.close()
 
-	if os.path.exists(filename + ("%d.cls" % clusterLvl)) :
-		print "Loading cluster from file..."
-		cluster_file = open(filename + ("%d.cls" % clusterLvl), 'r')
+	if os.path.exists(cpDir + "/" + filename + ("%f.cls" % clusterLvl)) :
+		print "Loading individual clusters from file..."
+		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % clusterLvl), 'r')
 		myCluster = cPickle.load(cluster_file)
 		cluster_file.close()
 	else :
-		print "Computing cluster..."
-		memF = lambda x,p : any(map(lambda y : (float(x[1]),float(x[2])) == (y[0],y[1]),p))
+		print "Computing individual clusters..."
+		memF = lambda x,p : any(map(lambda y : lineToPair(x) == (y[0],y[1]),p))
 		myCluster = modData(data, part, memF)
-		cluster_file = open(filename + ("%d.cls" % clusterLvl), 'w')
-		print "Saving cluster to file..."
+		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % clusterLvl), 'w')
+		print "Saving individual clusters to file..."
 		cPickle.dump(myCluster, cluster_file)
 		cluster_file.close()
 
