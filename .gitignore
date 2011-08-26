@@ -1,5 +1,5 @@
-*.o
-*.hi
-*-nodups.tsv
-*-valid.tsv
-nubber
+master-clusters
+chandra-obs
+checkpoints
+*.pyc
+master.tsv
