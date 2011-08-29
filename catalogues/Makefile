@@ -1,7 +1,7 @@
 all : master.tsv
 
 chandra.tsv : 
-	./fetch_chandra_db.py | grep -v HTEG > $@
+	./fetch_chandra_db.py | grep ACIS > $@
 
 XMM.tsv : 
 	./fetch_XMM_db.py | grep -v 'Slew Observation' > $@
