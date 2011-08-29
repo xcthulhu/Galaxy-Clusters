@@ -2,20 +2,35 @@ CIAODIR=/usr/local/ciao-4.3/bin
 CIAO_INIT=source $(CIAODIR)/ciao.bash
 BASEDIR=../..
 
+all : chandra XMM
+
 chandra : *.tsv
-	mkdir chandra
-	for i in `grep chandra $< | cut -f 4` ; do \
-		if [ -d "$(BASEDIR)/chandra-obs/$$i" ] ; then \
-			echo ">>> Linking archived ObsId $$i <<<" ; \
-			ln -s ../$(BASEDIR)/chandra-obs/$$i chandra ; \
-		else \
-			echo ">>> Downloading ObsId $$i <<<" ; \
+	[ -d $@ ] || mkdir $@
+	for i in `grep $@ $< | cut -f 4` ; do \
+		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
+			echo ">>> Downloading $@ ObsId $$i <<<" ; \
 			$(CIAO_INIT) && download_chandra_obsid $$i ; \
-			mv $$i "$(BASEDIR)/chandra-obs/" ; \
-			ln -s ../$(BASEDIR)/chandra-obs/$$i chandra ; \
+			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
+			mv $$i "$(BASEDIR)/$@-obs/" ; \
 		fi ; \
+		echo ">>> Linking archived $@ ObsId $$i <<<" ; \
+		ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
+	done
+	$(BASEDIR)/make_$@_makes.sh $@
+
+XMM : *.tsv
+	[ -d $@ ] || mkdir $@
+	for i in `grep $@ $< | cut -f 4` ; do \
+		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
+			echo ">>> Downloading $@ ObsId $$i <<<" ; \
+			./get_XMM_obs.sh $$i ; \
+			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
+			mv $$i "$(BASEDIR)/$@-obs/" ; \
+		fi ; \
+		echo ">>> Linking archived $@ ObsId $$i <<<" ; \
+		ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
 	done
 
 clean :
-	rm -rf chandra
+	rm -rf chandra XMM
 
