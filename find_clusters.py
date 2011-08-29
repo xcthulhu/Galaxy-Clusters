@@ -78,6 +78,8 @@ def mkClusters(filename,clusterLvl=.004,cpDir="checkpoints") :
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 
+	if not os.path.exists(cpDir): os.makedirs(cpDir)
+
 	# We check if pickled data-products exist before computing
 	if os.path.exists(cpDir + "/" + filename + ".vec") :
 		vecs_file = open(cpDir + "/" + filename + ".vec", 'r')
