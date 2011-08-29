@@ -25,10 +25,14 @@ XMM : *.tsv
 			echo ">>> Downloading $@ ObsId $$i <<<" ; \
 			./get_XMM_obs.sh $$i ; \
 			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
-			mv $$i "$(BASEDIR)/$@-obs/" ; \
+			[ -d $$i ] && mv $$i "$(BASEDIR)/$@-obs/" ; \
 		fi ; \
-		echo ">>> Linking archived $@ ObsId $$i <<<" ; \
-		ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
+		if [ -d ../$(BASEDIR)/$@-obs/$$i ] ; then \
+			echo ">>> Linking archived $@ ObsId $$i <<<" ; \
+			ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
+		else \
+			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
+		fi ; \
 	done
 
 clean :

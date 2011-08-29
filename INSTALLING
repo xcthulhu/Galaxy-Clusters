@@ -1,15 +1,17 @@
 Software needed:
-	- Either Ubuntu or OS X
+	- Either Ubuntu, REDHAT or OS X
 		* OS X needs fink installed
 			* As a rule, we use python easy_install for python modules that don't have external requirements
 		
 
-	- Install Python (v2.7)
+	- Install Python (v2.7/v2.6 for REDHAT)
 		- Ubuntu
 			> sudo apt-get install python
 		- OS X
 			> fink install python 
-
+		- REDHAT
+			> sudo yum install python26 python26-devel python26-setuptools python26-numpy-devel
+		
 	- SciPy python module
 		- Ubuntu 
 			> sudo apt-get install python-scipy
@@ -18,24 +20,24 @@ Software needed:
 
 			* Needs main/unstable branch ; see http://www.finkproject.org/faq/usage-fink.php#unstable 
 			  >>>> TURN OFF UNSTABLE WHEN COMPLETED!! <<<<
-
-	- Haskell
-		- Ubuntu
-			> sudo apt-get install ghc
-		- OS X 
-			> fink install ghc
+		- REDHAT
+			> sudo easy_install2.6 scipy
 
 	- MatPlotLib python module
 		- Ubuntu
 			> sudo apt-get install python-matplotlib
 		- OS X
 			> sudo easy_install-2.7 http://sourceforge.net/projects/matplotlib/files/matplotlib/matplotlib-1.0.1/matplotlib-1.0.1.tar.gz/download
+		- REDHAT
+			> sudo easy_install-2.6 http://sourceforge.net/projects/matplotlib/files/matplotlib/matplotlib-1.0.1/matplotlib-1.0.1.tar.gz/download
 
-	- Fastcluster python module
+	- Fastcluster python module (NEEDS SCIPY!)
 		- Ubuntu
 			> sudo pip install ./fastcluster
 		- OS X
 			> sudo easy_install-2.7 ./fastcluster
+		- REDHAT
+			> sudo easy_install-2.6 ./fastcluster
 
 	- Basemap python module
 		- Ubuntu 
@@ -45,9 +47,14 @@ Software needed:
 		- OS X
 			> fink install libgeos2
 			> sudo env GEOS_DIR=/sw easy_install-2.7 http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
+		- REDHAT
+			> sudo yum install geos geos-devel
+			> sudo env GEOS_DIR=/usr easy_install-2.6 http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
 
 	- Pyephem python module
 		- Ubuntu
 			> sudo pip install pyephem
 		- OS X
 			> sudo easy_install-2.7 pyephem
+		- REDHAT
+			> sudo easy_install-2.6 pyephem

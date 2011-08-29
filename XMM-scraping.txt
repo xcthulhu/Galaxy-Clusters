@@ -1,6 +1,0 @@
-- Use the AIO system
-Documentation here: http://xsa.esac.esa.int:8080/aio/doc/index.html
-> http://xsa.esac.esa.int:8080/aio/jsp/product.jsp?obsno=0112570401&instname=M1&expno=009&expflag=U&name=IMAGE_&sourceno=8000
-
-For simply acquiring data about a particular observation, use this website:
-http://xmm.esac.esa.int/cgi-bin/obs_search/find_obs_logx?obs_num=0164560701
