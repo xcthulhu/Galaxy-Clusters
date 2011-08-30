@@ -1,13 +1,19 @@
+ifneq ($(shell ls /etc/redhat-release),'/etc/redhad-release')
+  PYTHON=python2.6
+else
+  PYTHON=python
+endif
+
 all : master.tsv
 
 chandra.tsv : 
-	./fetch_chandra_db.py | grep ACIS > $@
+	$(PYTHON) ./fetch_chandra_db.py | grep ACIS > $@
 
 XMM.tsv : 
-	./fetch_XMM_db.py | grep -v 'Slew Observation' > $@
+	$(PYTHON) ./fetch_XMM_db.py | grep -v 'Slew Observation' > $@
 
 ROSAT.tsv :
-	./fetch_ROSAT_db.py > $@
+	$(PYTHON) ./fetch_ROSAT_db.py > $@
 
 master.tsv : chandra.tsv XMM.tsv ROSAT.tsv
 	tail -n +2 chandra.tsv > $@
