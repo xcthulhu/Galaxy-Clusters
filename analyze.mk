@@ -13,7 +13,7 @@ chandra : *.tsv
 			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
 			mv $$i "$(BASEDIR)/$@-obs/" ; \
 		fi ; \
-		echo ">>> Linking archived $@ ObsId $$i <<<" ; \
+		echo ">>> Linking $@ ObsId $$i <<<" ; \
 		ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
 	done
 	$(BASEDIR)/make_$@_makes.sh $@
@@ -27,8 +27,8 @@ XMM : *.tsv
 			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
 			[ -d $$i ] && mv $$i "$(BASEDIR)/$@-obs/" ; \
 		fi ; \
-		if [ -d ../$(BASEDIR)/$@-obs/$$i ] ; then \
-			echo ">>> Linking archived $@ ObsId $$i <<<" ; \
+		if [ -d $(BASEDIR)/$@-obs/$$i ] ; then \
+			echo ">>> Linking $@ ObsId $$i <<<" ; \
 			ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
 		else \
 			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
