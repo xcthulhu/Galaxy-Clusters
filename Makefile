@@ -20,6 +20,7 @@ catalogues/master.tsv :
 	rm $@/map-UNCROPPED.pdf
 	cd $@ && find . -iname "*.tsv" -exec wc -l '{}' \; | sort -nr > hits.txt
 	./make_makefiles.sh $@
+	cd $@ && $(PYTHON) ../chronicle_galaxy_clusters.py .
 
 clean:
 	rm -rf *.o *.hi *.pyc $(OBJS) master.tsv
