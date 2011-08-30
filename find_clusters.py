@@ -8,6 +8,8 @@ from sets import Set
 
 def degToRad(x) : return x / 360. * 2 * pi
 
+def arcminToRad(x) : return x * 0.000290888209
+	
 def EqToRad(ra,dec) :
 	c = ephem.Equatorial(ra,dec,epoch=ephem.J2000)
 	return (float(c.ra),float(c.dec))
@@ -74,7 +76,8 @@ def modData(data, part, memF) :
 	
 # Clusters the entries in a file
 # Default is pretty wide
-def mkClusters(filename,clusterLvl=.004,cpDir="checkpoints") :
+def mkClusters(filename,clusterLvl=30,cpDir="checkpoints") :
+	# clusterLvl given in arcmins
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 
@@ -114,7 +117,7 @@ def mkClusters(filename,clusterLvl=.004,cpDir="checkpoints") :
 		part_file.close()
 	else:
 		print "Computing partition..."
-		lol = getLevel(tree, clusterLvl)
+		lol = getLevel(tree, arcminToRad(clusterLvl))
 		part = [ map(lambda n : vecs[n], x) for x in lol ]
 		print "Saving partition to file..."
 		part_file = open(cpDir + "/" + filename + ("%f.part" % clusterLvl), 'w')
