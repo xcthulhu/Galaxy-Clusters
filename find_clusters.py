@@ -5,14 +5,15 @@ from math import sqrt,sin,cos,atan2,pi,acos
 from fastcluster import *
 from scipy.cluster.hierarchy import to_tree
 from sets import Set
+from master_variables import *
 
 def degToRad(x) : return x / 360. * 2 * pi
 
 def arcminToRad(x) : return x * 0.000290888209
 	
-def EqToRad(ra,dec) :
-	c = ephem.Equatorial(ra,dec,epoch=ephem.J2000)
-	return (float(c.ra),float(c.dec))
+def EqToRad(lon,lat) :
+	c = ephem.Galactic(lon,lat,epoch=ephem.J2000)
+	return (float(c.lon),float(c.lat))
 
 # Vincenty's formula for great circle distance 
 # (same as greatCircleD but numerically stable)
@@ -20,11 +21,6 @@ def Vincenty((phi1,lam1),(phi2,lam2)) :
 	dlam = lam1 - lam2
 	return atan2(sqrt((cos(phi2)*sin(dlam))**2 + (cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam))**2),
                      sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(dlam))
-
-# Takes two tsv lines with RA and DEC (in degrees) as columns 1 and 2 
-# and computes great arc length (in Radians)
-def tsvDist(line1,line2) : 
-	return Vincenty(*map((lambda x: degToRad(float(x))), line1[1:3]+line2[1:3]))
 
 # Converts a line of data into a pair of coordinates
 def lineToPair(l) : 
@@ -76,8 +72,8 @@ def modData(data, part, memF) :
 	
 # Clusters the entries in a file
 # Default is pretty wide
-def mkClusters(filename,clusterLvl=30,cpDir="checkpoints") :
-	# clusterLvl given in arcmins
+def mkClusters(filename,radius=RADIUS,cpDir="checkpoints") :
+	# radius given in arcmins
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
 
@@ -110,30 +106,30 @@ def mkClusters(filename,clusterLvl=30,cpDir="checkpoints") :
 		cPickle.dump(tree, tree_file)
 		tree_file.close()
 
-	if os.path.exists(cpDir + "/" + filename + ("%f.part" % clusterLvl)) :
+	if os.path.exists(cpDir + "/" + filename + ("%f.part" % radius)) :
 		print "Loading partition from file..."
-		part_file = open(cpDir + "/" + filename + ("%f.part" % clusterLvl), 'r')
+		part_file = open(cpDir + "/" + filename + ("%f.part" % radius), 'r')
 		part = cPickle.load(part_file)
 		part_file.close()
 	else:
 		print "Computing partition..."
-		lol = getLevel(tree, arcminToRad(clusterLvl))
+		lol = getLevel(tree, arcminToRad(radius))
 		part = [ map(lambda n : vecs[n], x) for x in lol ]
 		print "Saving partition to file..."
-		part_file = open(cpDir + "/" + filename + ("%f.part" % clusterLvl), 'w')
+		part_file = open(cpDir + "/" + filename + ("%f.part" % radius), 'w')
 		cPickle.dump(part, part_file)
 		part_file.close()
 
-	if os.path.exists(cpDir + "/" + filename + ("%f.cls" % clusterLvl)) :
+	if os.path.exists(cpDir + "/" + filename + ("%f.cls" % radius)) :
 		print "Loading individual clusters from file..."
-		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % clusterLvl), 'r')
+		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % radius), 'r')
 		myCluster = cPickle.load(cluster_file)
 		cluster_file.close()
 	else :
 		print "Computing individual clusters..."
 		memF = lambda x,p : any(map(lambda y : lineToPair(x) == (y[0],y[1]),p))
 		myCluster = modData(data, part, memF)
-		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % clusterLvl), 'w')
+		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % radius), 'w')
 		print "Saving individual clusters to file..."
 		cPickle.dump(myCluster, cluster_file)
 		cluster_file.close()
