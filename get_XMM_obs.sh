@@ -8,7 +8,11 @@ fi
 
 if URL=`$PYTHON ./get_XMM_obs_url.py $1` ; then
 	wget $URL
-	mv `basename $URL` XMM-$1.tar
-	tar xfv XMM-$1.tar
-	rm XMM-$1.tar
+	if [ "`echo $URL | grep odf`" ] ; then
+		mkdir -p $1/odf
+		mv `basename $URL` $1/odf
+	else
+		tar xfv `basename $URL`
+		rm `basename $URL`
+	fi
 fi
