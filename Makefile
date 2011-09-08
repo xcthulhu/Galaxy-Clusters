@@ -1,10 +1,8 @@
+BASEDIR=.
+include $(BASEDIR)/python_logic.mk
+
 OBJS=master-clusters
 SZ=5
-ifneq ($(shell ls /etc/redhat-release),'/etc/redhad-release')
-  PYTHON=python2.6
-else
-  PYTHON=python
-endif
 
 all: $(OBJS)
 
@@ -20,7 +18,7 @@ catalogues/master.tsv :
 	rm $@/map-UNCROPPED.pdf
 	cd $@ && find . -iname "*.tsv" -exec wc -l '{}' \; | sort -nr > hits.txt
 	./make_makefiles.sh $@
-	cd $@ && $(PYTHON) ../chronicle_galaxy_clusters.py .
+	cd $@ && ../chronicle_galaxy_clusters.sh .
 
 clean:
 	rm -rf *.o *.hi *.pyc $(OBJS) master.tsv
