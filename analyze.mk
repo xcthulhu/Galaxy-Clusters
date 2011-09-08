@@ -1,8 +1,11 @@
 CIAODIR=/usr/local/ciao-4.3/bin
 CIAO_INIT=source $(CIAODIR)/ciao.bash
-BASEDIR=../..
+include $(BASEDIR)/python_logic.mk
+COORDS=$(shell basename `pwd` | sed -e 's/+/ +/' | sed -e 's/-/ -/')
+RADIUS=$(shell $(PYTHON) $(BASEDIR)/get_master_radius.py)
+NEDARCHIVE="$(BASEDIR)/nedshifts/$(shell basename `pwd`)_$(RADIUS).tsv"
 
-all : chandra XMM
+all : chandra XMM nedshifts.tsv
 
 chandra : *.tsv
 	[ -d $@ ] || mkdir $@
@@ -35,6 +38,10 @@ XMM : *.tsv
 		fi ; \
 	done
 
-clean :
-	rm -rf chandra XMM
+nedshifts.tsv :
+	[ -d $(shell dirname $(NEDARCHIVE)) ] || mkdir -p $(shell dirname $(NEDARCHIVE))
+	[ -e $(NEDARCHIVE) ] || $(PYTHON) $(BASEDIR)/get_ned.py $(COORDS) > $(NEDARCHIVE)
+	[ -e $@ ] || ln -s $(NEDARCHIVE) $@
 
+clean :
+	rm -rf chandra XMM nedshifts.tsv
