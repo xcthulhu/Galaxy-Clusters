@@ -1,0 +1,2 @@
+Tediously, heasarc does not provide full precision for galactic, only for *Equatorial* coordinates.
+It is important to note that we are changing the coordinates here.  Elsewhere, we will only use Galactic coordinates

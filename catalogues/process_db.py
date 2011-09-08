@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import time,ephem
+import time,ephem,urllib,urllib2,StringIO
 from math import pi
-import urllib,urllib2
+from master_variables import *
 
 def isTime(string):
 	try:
@@ -10,13 +10,30 @@ def isTime(string):
 	except ValueError:
 		return False
 
-def degToRad(d) : return d / 360. * 2 * pi
+def r2d(r) : return r / (2*pi) * 360
+
+def makeGoodGalactic(lst, zoneOfAvoidance=ZONE_OF_AVOIDANCE) :
+   for l in lst :
+      # MAKE SURE THIS AGREES WITH WHAT HEASARC CLAIMS TO BE OUTPUTTING (should be Equatorial J2000) !!
+      # MAKE SURE THIS IS USING THE SAME COORDINATES AS IS SPECIFIED IN master_variables.py !!!
+      eq = ephem.Equatorial(l[1], l[2], epoch=ephem.J2000)
+      gal = ephem.Galactic(eq)
+      if ((r2d(gal.lat) <= -zoneOfAvoidance) or
+          (zoneOfAvoidance <= r2d(gal.lat))) :
+           lonstr = StringIO.StringIO() ; latstr = StringIO.StringIO()
+	   print >>lonstr, gal.lon ; print >>latstr, gal.lat
+           l[1] = lonstr.getvalue().strip()
+	   if (gal.lat >= 0) : l[2] = "+" + latstr.getvalue().strip()
+	   else : l[2] = latstr.getvalue().strip()
+           yield l
 
 # Determine whether an entry is on the galactic plane (approximately)
-def offGP(l,zoneOfAvoidance=15) :
-	eq = ephem.Equatorial(l[1],l[2]) # Equitorial coordinates
-	gal = ephem.Galactic(eq)        # Galatic coordinates
-	return abs(gal.lat) >= degToRad(zoneOfAvoidance)
+def offGP(l,zoneOfAvoidance=ZONE_OF_AVOIDANCE) :
+	# MAKE SURE THIS AGREES WITH WHAT HEASARC CLAIMS TO BE OUTPUTTING (should be Equatorial J2000) !!
+	# MAKE SURE THIS IS USING THE SAME COORDINATES AS IS SPECIFIED IN master_variables.py !!!
+	eq = ephem.Equatorial(l[1], l[2], epoch=ephem.J2000)
+	gal = ephem.Galactic(eq, epoch=ephem.J2000)
+	return ((r2d(gal.lat) <= -zoneOfAvoidance) or (zoneOfAvoidance <= r2d(gal.lat)))
 
 def cleanup_line(line, sat) :
 	return [ cell.strip() for cell in line.split('|') ]
@@ -43,29 +60,7 @@ def make_good_table(text, sat) :
 		table3[i][1] = ':'.join(table3[i][1].split(' '))
 		table3[i][2] = ':'.join(table3[i][2].split(' '))
 
-	# throw out the "Zone of Avoidance"
-	table4 = filter(offGP, table3)
+	# Convert to Galactic Coordinates and chuck "the zone of avoidance"
+	table4 = list(makeGoodGalactic(table3))
 
 	return [header] + table4
-
-if __name__ == '__main__':
-	vals =     {    """popupFrom""" : """Query Results""" ,
-                        """tablehead""" : """ name=heasarc_chanmaster&description=Chandra Observations&url=http://heasarc.gsfc.nasa.gov/W3Browse/chandra/chanmaster.html&archive=Y&radius=21&mission=CHANDRA&priority=1&tabletype=Observation""",
-                        """varon""" : """ra, dec, obsid, time, exposure, category, name, status, detector""" ,
-			"""Coordinates""" : """J2000""" ,
-			"""Radius""" : """Default""" ,
-			"""Radius_unit""" : """arcsec""" ,
-			"""NR""" : """CheckCaches/GRB/SIMBAD/NED""" ,
-			"""Time""" : "" ,
-			"""ResultMax""" : """0""" ,
-			"""displaymode""" : """PureTextDisplay""" ,
-			"""Action""" : """Start Search""" ,
-			"""table""" : """heasarc_chanmaster""" }
-	url='http://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl'
-	post_data = urllib.urlencode(vals)
-	req = urllib2.Request(url, post_data)
-	response = urllib2.urlopen(req)
-	text_table = response.read()
-	good_table = make_good_table(text_table,"chandra")
-	for row in good_table:
-		print '\t'.join(row)

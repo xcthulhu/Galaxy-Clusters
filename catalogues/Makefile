@@ -1,8 +1,5 @@
-ifneq ($(shell ls /etc/redhat-release),'/etc/redhad-release')
-  PYTHON=python2.6
-else
-  PYTHON=python
-endif
+BASEDIR=..
+include $(BASEDIR)/python_logic.mk
 
 all : master.tsv
 
@@ -10,7 +7,7 @@ chandra.tsv :
 	$(PYTHON) ./fetch_chandra_db.py | grep ACIS > $@
 
 XMM.tsv : 
-	$(PYTHON) ./fetch_XMM_db.py | grep -v 'Slew Observation' > $@
+	$(PYTHON) ./fetch_XMM_db.py | grep -v 'Slew Observation' | grep -v "dummy" > $@
 
 ROSAT.tsv :
 	$(PYTHON) ./fetch_ROSAT_db.py > $@

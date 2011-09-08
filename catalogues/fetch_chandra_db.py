@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import urllib,urllib2
 from process_db import *
+from master_variables import *
 
 if __name__ == '__main__':
 	vals =     {    """popupFrom""" : """Query Results""" ,
