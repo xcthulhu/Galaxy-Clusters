@@ -43,7 +43,6 @@ Software needed:
 		- Ubuntu 
 			> sudo apt-get install libgeos-dev
 			> sudo pip install http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
-
 		- OS X
 			> fink install libgeos2
 			> sudo env GEOS_DIR=/sw easy_install-2.7 http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download
@@ -58,3 +57,24 @@ Software needed:
 			> sudo easy_install-2.7 pyephem
 		- REDHAT
 			> sudo easy_install-2.6 pyephem
+
+	- PyFITS python module
+		- Ubuntu
+			> sudo pip install pyfits
+		- OS X
+			> sudo easy_install-2.7 pyfits
+		- REDHAT
+			> sudo easy_install-2.6 pyfits
+
+	- Shapely python module
+		- Ubuntu
+			> sudo apt-get install libgeos-dev
+			> sudo pip install shapely
+		- OS X
+			> fink configure (turn on unstable)
+			> fink selfupdate
+			> fink install shapely-py27
+			> fink configure (turn off unstable)
+			> fink selfupdate
+		- REDHAT (NOTE: BROKEN)
+			> sudo easy_install-2.6 shapely
