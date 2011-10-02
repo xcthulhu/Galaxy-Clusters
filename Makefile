@@ -19,6 +19,7 @@ catalogues/master.tsv :
 	cd $@ && find . -iname "*.tsv" -exec wc -l '{}' \; | sort -nr > hits.txt
 	./make_makefiles.sh $@
 	cd $@ && ../chronicle_galaxy_clusters.sh .
+	cd $@ && ../chronicle_galaxy_clusters_according_to_ned.sh .
 
 clean:
 	rm -rf *.o *.hi *.pyc $(OBJS) master.tsv
