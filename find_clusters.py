@@ -11,7 +11,7 @@ def degToRad(x) : return x / 360. * 2 * pi
 
 def arcminToRad(x) : return x * 0.000290888209
 	
-def EqToRad(lon,lat) :
+def GalToRad(lon,lat) :
 	c = ephem.Galactic(lon,lat,epoch=ephem.J2000)
 	return (float(c.lon),float(c.lat))
 
@@ -24,7 +24,7 @@ def Vincenty((phi1,lam1),(phi2,lam2)) :
 
 # Converts a line of data into a pair of coordinates
 def lineToPair(l) : 
-	return EqToRad(l[1],l[2])
+	return GalToRad(l[1],l[2])
 
 # Converts derived data from a tsv to an array of (unique) vectors
 def dataToArray(data) :
