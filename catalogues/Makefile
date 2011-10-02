@@ -4,7 +4,7 @@ include $(BASEDIR)/python_logic.mk
 all : master.tsv
 
 chandra.tsv : 
-	$(PYTHON) ./fetch_chandra_db.py | grep ACIS > $@
+	$(PYTHON) ./fetch_chandra_db.py | grep ACIS | grep -v "observed" > $@
 
 XMM.tsv : 
 	$(PYTHON) ./fetch_XMM_db.py | grep -v 'Slew Observation' | grep -v "dummy" > $@
