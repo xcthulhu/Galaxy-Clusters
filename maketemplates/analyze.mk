@@ -1,42 +1,55 @@
+include $(RAWBASEDIR)/maketemplates/master.mk
 CIAODIR=/usr/local/ciao-4.3/bin
 CIAO_INIT=source $(CIAODIR)/ciao.bash
-include $(BASEDIR)/python_logic.mk
-COORDS=$(shell basename `pwd` | sed -e 's/+/ +/' | sed -e 's/-/ -/')
-RADIUS=$(shell $(PYTHON) $(BASEDIR)/get_master_radius.py)
-NEDARCHIVE="$(BASEDIR)/nedshifts/$(shell basename `pwd`)_$(RADIUS).tsv"
+COORDS=$(shell echo $(basename $(PWD)) | sed -e 's/+/ +/' | sed -e 's/-/ -/')
+RADIUS=$(shell $(PYTHON) $(BASEDIR)/bin/get_master_radius.py)
+NEDARCHIVE="$(BASEDIR)/nedshifts/$(basename $(PWD))_$(RADIUS).tsv"
+CHANDRA_OBSIDS=$(shell grep chandra $(notdir $(PWD)).tsv | cut -f 4) 
+XMM_OBSIDS=$(shell grep XMM $(notdir $(PWD)).tsv | cut -f 4) 
 
-all : chandra XMM nedshifts.tsv
+ifneq ($(strip $(CHANDRA_OBSIDS)),)
+	CHANDRA_MAKE=chandra/Makefile
+endif
 
-chandra : *.tsv
-	[ -d $@ ] || mkdir $@
-	for i in `grep $@ $< | cut -f 4` ; do \
-		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
-			echo ">>> Downloading $@ ObsId $$i <<<" ; \
-			$(CIAO_INIT) && download_chandra_obsid $$i ; \
-			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
-			mv $$i "$(BASEDIR)/$@-obs/" ; \
-		fi ; \
-		echo ">>> Linking $@ ObsId $$i <<<" ; \
-		ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
-	done
-	$(BASEDIR)/make_$@_makes.sh $@
+ifneq ($(strip $(XMM_OBSIDS)),)
+	XMM_MAKE=XMM/Makefile
+endif
 
-XMM : *.tsv
-	[ -d $@ ] || mkdir $@
-	for i in `grep $@ $< | cut -f 4` ; do \
-		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
-			echo ">>> Downloading $@ ObsId $$i <<<" ; \
-			./get_XMM_obs.sh $$i ; \
-			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
-			[ -d $$i ] && mv $$i "$(BASEDIR)/$@-obs/" ; \
-		fi ; \
-		if [ -d $(BASEDIR)/$@-obs/$$i ] ; then \
-			echo ">>> Linking $@ ObsId $$i <<<" ; \
-			ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
-		else \
-			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
-		fi ; \
-	done
+.PRECIOUS: chandra XMM
+
+all : $(CHANDRA_MAKE) $(XMM_MAKE) #nedshifts.tsv
+
+chandra : 
+	mkdir $@
+
+XMM : 
+	mkdir $@
+
+%/Makefile : %
+	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
+	echo 'SATELLITE=$<' >> $@
+	echo 'OBSIDS=$(shell grep $< $(notdir $(PWD)).tsv | cut -f 4)' >> $@
+	echo include '$$(RAWBASEDIR)'/maketemplates/$<_analyze.mk >> $@
+
+#XMM : *.tsv
+#	[ -d $@ ] || mkdir $@
+#	for i in `grep $@ $< | cut -f 4` ; do \
+#		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
+#			echo ">>> Downloading $@ ObsId $$i <<<" ; \
+#			./get_XMM_obs.sh $$i ; \
+#			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
+#			[ -d $$i ] && mv $$i "$(BASEDIR)/$@-obs/" ; \
+#		fi ; \
+#		if [ -d $(BASEDIR)/$@-obs/$$i ] ; then \
+#			echo ">>> Linking $@ ObsId $$i <<<" ; \
+#			ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
+#		else \
+#			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
+#		fi ; \
+#	done
+
+$(BASEDIR)/Data/nedshifts:
+	$(MAKE) -C $(BASEDIR)/Data
 
 nedshifts.tsv :
 	[ -d $(shell dirname $(NEDARCHIVE)) ] || mkdir -p $(shell dirname $(NEDARCHIVE))
