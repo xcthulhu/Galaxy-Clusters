@@ -5,6 +5,7 @@ from math import pi
 import ephem
 from master_variables import *
 import StringIO
+from types import *
 
 def d2r(deg) : return deg / 360. * 2 * pi
 
@@ -15,7 +16,8 @@ def isFloat(x):
 	except: return False
 
 def get_ned(lon,lat,radius=RADIUS):
-	# radius is in arcmins
+	# radius is in arcmins - coerce to float if necessary
+	if type(radius) is StringType: radius = float(radius)
 	url = 'http://ned.ipac.caltech.edu/cgi-bin/nph-objsearch?in_csys=' + COORD_SYSTEM + '&in_equinox=J2000.0&lon=' + urllib.quote(lon) + '&lat=' + urllib.quote(lat) + '&radius=' + ("%f" % radius) + '&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&search_type=Near+Position+Search&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&ot_include=ANY&nmp_op=ANY&out_csys=' + COORD_SYSTEM + '&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=ascii_tab&zv_breaker=30000.0&list_limit=5&img_stamp=NO'
 	#print url
 	response = urllib2.urlopen(url)
@@ -34,5 +36,5 @@ def get_ned(lon,lat,radius=RADIUS):
 	return zobs
 
 if __name__ == '__main__':
-	obs = get_ned(sys.argv[1],sys.argv[2])
+	obs = get_ned(*sys.argv[1:])
 	print "\n".join(map(lambda line : '\t'.join(line), obs))
