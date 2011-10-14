@@ -1,5 +1,3 @@
-CIAODIR=/usr/local/ciao-4.3/bin
-CIAO_INIT=source $(CIAODIR)/ciao.bash -o
 EVT2=$(shell echo *_evt2.fits | head -1)
 
 # The names of the FITS files for the bands of energy that we care about.
