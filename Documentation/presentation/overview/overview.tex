@@ -1,3 +1,69 @@
+\subsection{Galaxy Clusters, Super Massive Black Holes \& X-Ray Flares \& }
+\begin{frame}
+\frametitle{What Are Galaxy Clusters?}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+\frametitle{What Are Super Massive Black Holes?}
+\begin{center}
+\emph{Isn't that a song by Muse?}
+\end{center}
+\begin{itemize}
+\item \alert{Super Massive Black Holes (SMBHs) are enormous gavitational singularities found at the center of galaxies} 
+\\
+{\small \ldots also, Muse sings about them for some reason} 
+
+\item There is one in our galaxy named Sgr A$^\ast$\\
+(pronounced: ``Sagittarius Aye Star'')\footnote{Source: \url{http://rsd-www.nrl.navy.mil/7213/lazio/GC/GC-P-BCD.nolabel-highres.jpg}} 
+\end{itemize}
+
+\framebreak
+
+\begin{figure}[h]
+{\centering
+	\mode<presentation>{
+	\includegraphics[width=0.8\textwidth]{images/Sgr-A-star.jpg}
+	%\caption{}
+	}
+	\mode<article>{
+	\includegraphics[width=0.5\textwidth]{images/Sgr-A-star.jpg}
+	\caption{Sgr A$^\ast$ in Radio (330 MHz).  FIXME: citation for http://rsd-www.nrl.navy.mil/7213/lazio/GC/}
+	}
+}
+\end{figure}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+\frametitle{What Are X-Ray Flares?}
+\begin{itemize}
+	\item Ordinarily a \emph{mild mannered} SMBH, such as the Sgr A$^\ast$, has some various objects in orbit around it (see Fig \ref{Sgr-A-star-orbits})
+	\item When one of these objects passes \emph{too close} to the SMBH, some gas is pulled off of it
+	\begin{itemize}
+		\item The matter is accellerated to extreme velocities, approaching the speed of light
+		\item Lets off X-Ray light -- an \emph{X-Ray flare}
+	\end{itemize}
+	\item FIXME: Discuss accretion disks, jets
+	\item FIXME: Cite recent Swift paper in \emph{Science} that just found one of these things
+\end{itemize}
+\framebreak
+%%% FIXME Get animation working?
+%\mode<presentation>{\animategraphics[autoplay,loop,height=\textheight]{12}{images/Sgr-A-star-orbits/Sgr-A-star-orbits-}{0}{80}}
+\begin{figure}[h]
+{\centering
+	\mode<presentation>{
+	\includegraphics[height=0.8\textheight]{images/Sgr-A-star-orbits.png}
+	\caption{\ref{Sgr-A-star-orbits}}
+	}
+	\mode<article>{
+	\includegraphics[width=0.5\textwidth]{images/Sgr-A-star-orbits.png}
+	\caption{Orbits of various young stars around Sgr A$^\ast$, 1995--2010.  FIXME: citation for http://www.astro.ucla.edu/~ghezgroup/gc/publications/orbitsApJ.shtml, http://www.astro.ucla.edu/~ghezgroup/gc/pictures/orbitsOverImage10.shtml}
+	}
+	\label{Sgr-A-star-orbits}
+}
+\end{figure}
+\end{frame}
+
+\subsection{How Do Astronomers Analyze Images?}
 \begin{frame}[allowframebreaks]
 \frametitle{Traditional Image Processing \\
 vs. High Energy Astronomy}
@@ -48,13 +114,92 @@ Astronomers commonly use of \alert{three} celestial coordinate systems:
 \end{frame}
 \begin{frame}
 \frametitle{Equatorial Coordinates}
-
 \begin{columns}[c]
+\column{0.6\textwidth}
+\begin{itemize}
+\item $\langle\phi,\delta\rangle$ determined by the Earth's axis of rotation (just like lat/lon)
+	\begin{itemize}
+	\item $\phi$ called \emph{Right Ascension} (RA)
+	\item $\delta$ called \emph{Declination} (DEC)
+	\end{itemize}
+\item Under the \emph{J2000} spec: RA=0, DEC=0 set to the \emph{vernal equinox} (\Aries), where the \emph{ecliptic plane} swept by the sun and the equatorial plane intersected in the year 2000 (see Fig. \ref{equatorial-fig})\footnote{Source: \url{http://upload.wikimedia.org/wikipedia/commons/c/c2/Equatorial_coordinate_system_\%28celestial\%29.svg}}
+\end{itemize}
 \column{0.4\textwidth}
-Practical \TeX\ 2005\\
-Practical \TeX\ 2005\\
-Practical \TeX\ 2005
-\column{0.4\textwidth}
+\begin{figure}[h]
+{\centering
+\mode<presentation>{
+	\includegraphics[width=\textwidth]{images/Equatorial-coordinate-system}
+	\caption{\ref{equatorial-fig}}
+}
+\mode<article>{
+	\includegraphics[width=.5\textwidth]{images/Equatorial-coordinate-system}
+	\caption{In the Equatorial coordinate system, 0 longitude is defined by the Earth's Equator}
+}
+\label{equatorial-fig}
+}
+\end{figure}
 
 \end{columns}
+\end{frame}
+\begin{frame}
+\frametitle{Ecliptic Coordinates}
+\begin{columns}[c]
+\column{0.6\textwidth}
+\begin{itemize}
+\item $\langle\phi,\delta\rangle$ determined by the Earth/Sun orbital plane
+	\begin{itemize}
+	\item $\phi$ labeled $\lambda$ 
+	\item $\delta$ labeled $\beta$
+	\end{itemize}
+\item Under the \emph{J2000} spec: RA=0, DEC=0 set to the \emph{vernal equinox} (\Aries), same as equatorial (see Fig. \ref{ecliptic-figure})\footnote{Source: \url{http://upload.wikimedia.org/wikipedia/commons/b/b3/Ecliptic_coordinate_system_\%28celestial\%29.svg}}
+\end{itemize}
+\column{0.4\textwidth}
+\begin{figure}[h]
+{\centering
+\mode<presentation>{
+\includegraphics[width=\textwidth]{images/Ecliptic-coordinate-system}
+\caption{\ref{ecliptic-figure}}
+}
+\mode<article>{
+\includegraphics[width=.5\textwidth]{images/Ecliptic-coordinate-system}
+\caption{In the Ecliptic coordinate system, 0 longitude is defined by the Earth-Sun orbital plane}
+}
+\label{ecliptic-figure}
+}
+\end{figure}
+\end{columns}
+\end{frame}
+\begin{frame}
+\frametitle{Galactic Coordinates}
+Galactic coordinates determined by the plane of the Milky Way\footnote{Source: \url{http://upload.wikimedia.org/wikipedia/commons/6/60/ESO_-_Milky_Way.jpg}}\\
+Origin is the center of the galaxy (roughly the position of Sgr A$^\ast$)
+\begin{figure}[h]
+{\centering
+\mode<presentation>{
+	\includegraphics[width=0.8\textwidth]{images/Milky-Way-Galactic-Plane}
+}
+\mode<article>{
+	\includegraphics[width=.5\textwidth]{images/Milky-Way-Galactic-Plane}
+	\caption{A Mullweide projection of the Milky Way; created with the \texttt{matplotlib.basemap} python module}
+}
+}
+\end{figure}
+{\centering $\phi$ labeled $\ell$, $\delta$ labeled $b$}
+\end{frame}
+\begin{frame}
+\frametitle{Conventions \& Conversion}
+\begin{itemize}
+\item Conventions
+	\begin{itemize}
+	\item In \emph{Equatorial}, RA is denoted in \emph{Hours}:\emph{Minutes}:\emph{Seconds},\\
+	 DEC is denoted is \emph{Degrees}:\emph{Minutes}:\emph{Seconds}
+	\item In Ecliptic/Galactic, all coordinates are denoted \emph{Degrees}:\emph{Minutes}:\emph{Seconds}\\
+	$\Longrightarrow$ Just like familiar lattitude/longitude coordinates for GPS
+	\end{itemize}
+\item Conversion
+	\begin{itemize}
+	\item We use \texttt{pyephem}, an industry-standard python module in astronomy:\\
+	\url{http://rhodesmill.org/pyephem/}
+	\end{itemize}
+\end{itemize}
 \end{frame}

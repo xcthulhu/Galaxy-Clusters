@@ -1,6 +1,5 @@
 \subsection{Retrieving Archive Observation Data}
 \subsection{Agglomerating Observations by Position}
-
 \begin{frame}[allowframebreaks]
 \frametitle{Hierarchical Agglomerative Clustering Overview}
 \begin{itemize}
@@ -27,14 +26,22 @@
 	
 \begin{frame}
 \frametitle{Great Circle Distance}
-	We define the distance $d(pt_1,pt_2)$ between two points in spherical coordinates by their \emph{Great-circle distance}, which is given by:
+	We define the distance $d(pt_1,pt_2)$ between two points in spherical coordinates by their \emph{Great Circle Distance}, which is given by:
 \begin{block}{Vincenty's Formula}
 \includegraphics[width=\textwidth]{flare-detection/Vincenty}
 \end{block}
-
 Where:
 \begin{itemize}
 \item $\Delta \delta$ is $\delta_s-\delta_f$
 \item Implemented using \texttt{atan2} in Python, avoiding numerical instability and divide-by-zero errors
 \end{itemize}
+\end{frame}
+\subsection{Source Detection \& Agglomeration}
+\subsection{Flux Calculation}
+\begin{frame}
+\frametitle{Black Body Curve Fit}
+Recall that the \emph{Plank distribution} is the profile of energy radiated by a black body\footnote{Source: \url{http://xkcd.com/54/}}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/Blackbody.jpg}
+\end{center}
 \end{frame}

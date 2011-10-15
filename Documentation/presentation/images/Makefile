@@ -1,6 +1,25 @@
-.PHONY : all
+.PHONY : all clean
 
 all :
+
+Sgr-A-star-orbits.png : 
+	wget http://www.astro.ucla.edu/~ghezgroup/gc/images/2010orbits_img_hires.png -O $@
+
+Sgr-A-star-orbits : Sgr-A-star-orbits.gif  
+	mkdir $@
+	convert $< $(patsubst %.gif,$@/%-\%d.png,$<)
+
+Sgr-A-star-orbits.gif :
+	wget http://www.astro.ucla.edu/~ghezgroup/gc/images/2011orbits_animfull.gif -O $@
+
+Sgr-A-star-NOTROTATED.jpg :
+	wget http://rsd-www.nrl.navy.mil/7213/lazio/GC/GC-P-BCD.nolabel-highres.jpg -O $@
+
+Sgr-A-star.jpg : Sgr-A-star-NOTROTATED.jpg
+	convert -rotate 90 $< $@
+
+Blackbody.jpg : 
+	wget http://imgs.xkcd.com/comics/science.jpg -O $@
 
 ESO_-_Milky_Way.jpg : 
 	wget http://upload.wikimedia.org/wikipedia/commons/6/60/ESO_-_Milky_Way.jpg -O $@
@@ -37,3 +56,5 @@ Tree-of-life.pdf : Tree-of-life.svg
 
 clean :
 	rm -f *.pdf *.svg *.jpg
+	rm -rf Sgr-A-star-orbits
+
