@@ -1,0 +1,40 @@
+\subsection{Retrieving Archive Observation Data}
+\subsection{Agglomerating Observations by Position}
+
+\begin{frame}[allowframebreaks]
+\frametitle{Hierarchical Agglomerative Clustering Overview}
+\begin{itemize}
+	\item \emph{Hierarchical agglomerative clustering} successively merges pairs of clusters with their \emph{closest} neighbor, based on a measure $D$, until there is nothing left to merge
+	\item We use \emph{complete-linkage} as our measure -- that is, we say
+\begin{eqnarray*}
+  D (X, Y) & = & \underset{y \in Y}{\underset{x \in X}{\max}} (d (x, y))
+\end{eqnarray*}
+	Where:
+	\begin{itemize}
+		\item $d(x,y)$ is some distance measure of $x$ and $y$
+		\item $X$ and $Y$ are clusters
+	\end{itemize}
+	\item Efficient $O(n^2)$ algorithm used:\\
+	{\small \url{http://math.stanford.edu/~muellner/fastcluster.html}}
+\end{itemize}
+\framebreak
+	The same technique is used in \emph{computational phylogenics}\footnote{Source: \url{http://upload.wikimedia.org/wikipedia/commons/1/11/Tree_of_life_SVG.svg}}
+\begin{figure}[h,b]
+\centering
+\includegraphics[width=0.5\textwidth]{images/Tree-of-life}
+\end{figure}
+\end{frame}
+	
+\begin{frame}
+\frametitle{Great Circle Distance}
+	We define the distance $d(pt_1,pt_2)$ between two points in spherical coordinates by their \emph{Great-circle distance}, which is given by:
+\begin{block}{Vincenty's Formula}
+\includegraphics[width=\textwidth]{flare-detection/Vincenty}
+\end{block}
+
+Where:
+\begin{itemize}
+\item $\Delta \delta$ is $\delta_s-\delta_f$
+\item Implemented using \texttt{atan2} in Python, avoiding numerical instability and divide-by-zero errors
+\end{itemize}
+\end{frame}
