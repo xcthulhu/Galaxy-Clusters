@@ -1,11 +1,10 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
 CIAODIR=/usr/local/ciao-4.3/bin
 CIAO_INIT=source $(CIAODIR)/ciao.bash
-COORDS=$(shell echo $(basename $(PWD)) | sed -e 's/+/ +/' | sed -e 's/-/ -/')
 RADIUS=$(shell $(PYTHON) $(BASEDIR)/bin/get_master_radius.py)
-NEDARCHIVE="$(BASEDIR)/nedshifts/$(basename $(PWD))_$(RADIUS).tsv"
-CHANDRA_OBSIDS=$(shell grep chandra $(notdir $(PWD)).tsv | cut -f 4) 
-XMM_OBSIDS=$(shell grep XMM $(notdir $(PWD)).tsv | cut -f 4) 
+NEDARCHIVE=$(shell echo $(RAWBASEDIR)/Data/nedshifts/$(notdir $(shell pwd))R$(RADIUS).tsv)
+CHANDRA_OBSIDS=$(shell grep chandra $(notdir $(shell pwd)).tsv | cut -f 4) 
+XMM_OBSIDS=$(shell grep XMM $(notdir $(shell pwd)).tsv | cut -f 4) 
 
 ifneq ($(strip $(CHANDRA_OBSIDS)),)
 	CHANDRA_MAKE=chandra/Makefile
@@ -15,9 +14,11 @@ ifneq ($(strip $(XMM_OBSIDS)),)
 	XMM_MAKE=XMM/Makefile
 endif
 
-.PRECIOUS: chandra XMM
+.PHONY: all clean
 
-all : $(CHANDRA_MAKE) $(XMM_MAKE) #nedshifts.tsv
+.PRECIOUS: chandra XMM $(BASEDIR)/Data/nedshifts $(RAWBASEDIR)/Data/nedshifts/%.tsv 
+
+all : $(CHANDRA_MAKE) $(XMM_MAKE) nedshifts.tsv
 
 chandra : 
 	mkdir $@
@@ -25,11 +26,23 @@ chandra :
 XMM : 
 	mkdir $@
 
+# Rule for making $(NEDARCHIVE) ; "$(NEDARCHIVE):" doesn't work
+# >>>FUCKING COLONS<<<
+$(NEDARCHIVE) :
+	$(MAKE) -C $(dir $@) $(notdir $@)
+
+nedshifts.tsv : $(NEDARCHIVE)
+	ln -sf $< $@
+
 %/Makefile : %
 	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
 	echo 'SATELLITE=$<' >> $@
-	echo 'OBSIDS=$(shell grep $< $(notdir $(PWD)).tsv | cut -f 4)' >> $@
+	echo 'OBSIDS=$(shell grep $< $(notdir $(shell pwd)).tsv | cut -f 4)' >> $@
 	echo include '$$(RAWBASEDIR)'/maketemplates/$<_analyze.mk >> $@
+
+
+clean :
+	rm -rf chandra XMM nedshifts.tsv
 
 #XMM : *.tsv
 #	[ -d $@ ] || mkdir $@
@@ -47,14 +60,3 @@ XMM :
 #			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
 #		fi ; \
 #	done
-
-$(BASEDIR)/Data/nedshifts:
-	$(MAKE) -C $(BASEDIR)/Data
-
-nedshifts.tsv :
-	[ -d $(shell dirname $(NEDARCHIVE)) ] || mkdir -p $(shell dirname $(NEDARCHIVE))
-	[ -e $(NEDARCHIVE) ] || $(PYTHON) $(BASEDIR)/get_ned.py $(COORDS) > $(NEDARCHIVE)
-	[ -e $@ ] || ln -s $(NEDARCHIVE) $@
-
-clean :
-	rm -rf chandra XMM nedshifts.tsv

@@ -141,7 +141,7 @@ def mkClusters(filename,radius=RADIUS,cpDir="checkpoints") :
 # Write clusters out to directories
 def writeClusters(cls,clustersDir="clusters"):
 	for c in cls:
-		clusterName=c[0][1]+c[0][2]
+		clusterName=(c[0][1]+c[0][2]).replace(':','_')
 		thisDir=os.path.join(clustersDir,clusterName)
 		if not os.path.exists(thisDir): os.makedirs(thisDir)
 		newfn = os.path.join(thisDir,clusterName+".tsv")
@@ -149,9 +149,3 @@ def writeClusters(cls,clustersDir="clusters"):
 		print >>f, "\n".join(map(lambda x: "\t".join(x),c))
 		print "Wrote:", newfn 
 		f.close()
-	
-if __name__ == "__main__":
-	print "Computing Clusters"
-	cls=mkClusters(sys.argv[1])
-	print "Writing Cluster Directories"
-	writeClusters(cls)

@@ -1,19 +1,37 @@
-# Make hates colons - astronomers love them :(
-MAKES = $(shell echo $(patsubst %,%/Makefile,$(wildcard *:*:*:*:*)) | sed -e 's/:/\\:/g')
+include $(RAWBASEDIR)/maketemplates/master.mk
+MAKES = $(shell echo $(patsubst %,%/Makefile,$(wildcard *_*_*_*_*)))
+NEDSHIFTS = $(shell echo $(patsubst %,%/nedshifts.tsv,$(wildcard *_*_*_*_*)))
 
-.PHONY : all
+.PHONY : all makes nedshifts clean
 
-all : $(MAKES) #galaxy_clusters.txt 
+all : hits.txt galaxy-clusters.txt galaxy-clusters-according-to-ned.txt
+
+clean :
+	rm -f *.txt
 
 hits.txt :
 	find . -iname "*.tsv" -exec wc -l '{}' \; | sort -nr > $@
+
+makes : $(MAKES)
+
+nedshifts : $(NEDSHIFTS)
 
 %/Makefile:
 	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
 	echo include '$$(RAWBASEDIR)'/maketemplates/analyze.mk >> $@
 
-galaxy_clusters-UNSORTED.txt :
-	$(BASEDIR)/bin/chronicle_galaxy_clusters.sh . > $@
+%/nedshifts.tsv : %/Makefile
+	$(MAKE) -C $(dir $@) $(notdir $@)
+	touch $@
 
-galaxy_clusters.txt : galaxy_clusters-UNSORTED.txt
+galaxy-clusters-according-to-ned-UNSORTED.txt : $(NEDSHIFTS)
+	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh . > $@
+
+galaxy-clusters-according-to-ned.txt : galaxy-clusters-according-to-ned-UNSORTED.txt
+	sort -nr $< > $@
+
+galaxy-clusters-UNSORTED.txt : $(NEDSHIFTS)
+	[ -f $@ ] || $(BASEDIR)/bin/chronicle_galaxy_clusters.sh . > $@
+
+galaxy-clusters.txt : galaxy-clusters-UNSORTED.txt
 	sort -nr $< > $@

@@ -1,14 +1,12 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
-RADIUS=$(shell $(PYTHON) $(BASEDIR)/bin/get_master_radius.py)
-NEDARCHIVE="$(BASEDIR)/Data/nedshifts"
 
 .PHONY: all clean
 
 all : 
 
-# Don't run this unless it's all effed
+# Please don't run this unless it's all effed
 clean :
 	rm -f *.tsv
 
 % : 
-	echo $(subst "+", " +", $(subst "-"," -", $@))
+	$(PYTHON) $(BASEDIR)/bin/get_ned.py $(shell echo $@ | cut -d "R" -f 1 | sed -e 's/+/ +/' -e 's/-/ -/' -e 's/_/:/g') $(shell echo $@ | cut -d "R" -f 2 | sed -e 's/.tsv//') > $@
