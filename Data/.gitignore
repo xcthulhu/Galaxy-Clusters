@@ -1,2 +1,4 @@
 *.pdf
+checkpoints
+master.tsv
 master-clusters

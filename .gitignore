@@ -1,5 +1,5 @@
-master-clusters
-checkpoints
 *.pyc
-master.tsv
 .DS_Store
+.Spotlight-V100
+.com.apple.timemachine.supported
+.fseventsd
