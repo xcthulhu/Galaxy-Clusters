@@ -1,7 +1,4 @@
 master-clusters
-nedshifts
-chandra-obs
-XMM-obs
 checkpoints
 *.pyc
 master.tsv
