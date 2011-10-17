@@ -18,7 +18,7 @@ all: $(OBJS)
 	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
 	echo 'include $$(RAWBASEDIR)/maketemplates/$<.mk' >> $@
 
-##### Rules for Nedhshift Archive Directory #####
+##### Rules for Nedshift Archive Directory #####
 
 nedshifts :
 	mkdir $@
@@ -50,11 +50,11 @@ catalogues/master.tsv :
 
 ##### Pictures #####
 # Make a map of the galactic plane of the clusters the algorithm generated
-%-map-UNCROPPED.pdf : %.tsv
+%-map-UNCROPPED.pdf : %.tsv ESO_-_Milky_Way.jpg
 	$(PYTHON) $(BIN)/plot_clusters.py $(SZ) $< $@
 
 %-map.pdf : %-map-UNCROPPED.pdf
 	pdfcrop $< $@
 
 clean:
-	rm -rf $(OBJS) master.tsv
+	rm -rf $(OBJS) master.tsv *.jpg *.pdf
