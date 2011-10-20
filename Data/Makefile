@@ -35,23 +35,22 @@ master.tsv : catalogues/master.tsv
 catalogues/master.tsv :
 	make -C catalogues master.tsv
 
-%-clusters : %.tsv
+%-clusters : %.tsv $(BIN)/make_catalogue.py
 	# Cluster the observations
 	$(PYTHON) $(BIN)/make_catalogue.py $< $@
 
-%-clusters/Makefile : %-clusters
+%-clusters/Makefile : %-clusters 
 	# Create Makefile for processing clusters
 	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
 	echo include '$$(RAWBASEDIR)'/maketemplates/cluster_process.mk >> $@
-	#./make_makefiles.sh $@
-	#cd $@ && ../chronicle_galaxy_clusters.sh .
-	#cd $@ && ../chronicle_galaxy_clusters_according_to_ned.sh .
-
 
 ##### Pictures #####
 # Make a map of the galactic plane of the clusters the algorithm generated
-%-map-UNCROPPED.pdf : %.tsv ESO_-_Milky_Way.jpg
-	$(PYTHON) $(BIN)/plot_clusters.py $(SZ) $< $@
+ESO_-_Milky_Way.jpg : 
+	wget http://upload.wikimedia.org/wikipedia/commons/6/60/ESO_-_Milky_Way.jpg -O $@
+
+%-map-UNCROPPED.pdf : $(BIN)/plot_clusters.py %.tsv ESO_-_Milky_Way.jpg 
+	$(PYTHON) $^ $(SZ) $@
 
 %-map.pdf : %-map-UNCROPPED.pdf
 	pdfcrop $< $@
