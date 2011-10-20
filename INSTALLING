@@ -1,12 +1,18 @@
 Software needed:
 	- Either Ubuntu, REDHAT or OS X
-		* OS X needs fink installed
+		* OS X needs fink installed (or macports)
 			* As a rule, we use python easy_install for python modules that don't have external requirements
-		
+
+	- Needs: Python, python developer headers/libraries, inkscape, pdflatex, the "eulervm" font, the latex style files 'preview.sty' and 'type1cm.sty', dvipng, pip or easy_install
+	- Python modules: SciPy, MatPlotLib, Fastcluster, Basemap, Pyephem, PyFits, Shapely
+
+	- Install under Ubuntu:
+		> sudo apt-get install python python-dev python-pip python-scipy python-matplotlib libgeos-dev pgf preview-latex-style inkscape texlive-fonts-extra dvipng texlive-latex-extra
+		> sudo pip install ./fastcluster http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download pyephem shapely pyfits
 
 	- Install Python (v2.7/v2.6 for REDHAT)
 		- Ubuntu
-			> sudo apt-get install python
+			> sudo apt-get install python python-dev
 		- OS X
 			> fink install python 
 		- REDHAT
