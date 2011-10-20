@@ -1,0 +1,52 @@
+- OS X (ie, homer)
+	In this case I assume you are using storage drives to store all the data, which are HFS+ formatted.  You'll first want to type the following at command line:
+		> mount
+
+	Which will probably output:
+
+		/dev/disk5s2 on / (hfs, local, journaled)
+		devfs on /dev (devfs, local)
+		fdesc on /dev (fdesc, union)
+		/dev/disk2s2 on /Volumes/Macintosh HD 3 (hfs, local)
+		/dev/disk4s2 on /Volumes/Macintosh HD 4 (hfs, local)
+		/dev/disk3s2 on /Volumes/Macintosh HD 2 (hfs, local)
+		map -hosts on /net (autofs, automounted)
+		map auto_home on /home (autofs, automounted)
+		/dev/disk1s2 on /Volumes/DATA_STORAGE_II (hfs, local, nodev, nosuid, journaled, noowners)
+		/dev/disk6s2 on /Volumes/DATA_STORAGE_I (hfs, local, nodev, nosuid, journaled, noowners)
+
+	The last two entries are what we care about.
+
+	Go into the Finder and unmount them (<right-click> -> Eject "<NAME_OF_MOUNT>")
+
+	We'll want to remount them in this directory.
+
+	Note the /dev/diskNsM designations from the mount command.  To mount the chandra data, assuming it is device /dev/diskPsQ, type:
+
+		> sudo mount -t hfs /dev/diskPsQ chandra-obs
+
+	Similarly, to mount the XMM data, assuming it is device /dev/diskXsY, type:
+
+		> sudo mount -t hfs /dev/diskXsY XMM-obs
+
+- Linux
+	First, we assume you have mounted the directories on OS X.
+	Also, we assume that ${HOSTNAME}=homer.astro.northwestern.edu for OS X
+
+	To set up archival data in linux, you first need to make sure that NFS is set up on OS X (assuming OS X is serving the arche repositories).
+
+	First type (in OS X!):
+
+		> sudo vi /etc/exports
+
+	Edit the file to read:
+
+		/path/to/parent/of/this/directory -network 129.105.65.0 -mask 255.255.255.0
+
+	In my setup, the parent of this directory is "/Users/mpwd/Development/Galaxy-Clusters"
+
+	Log into linux.  At the prompt, type (in Linux!):
+	
+		> sudo mount homer.astro.northwestern.edu:/Users/mpwd/Development/Galaxy-Clusters Galaxy-Clusters/	
+
+	Where "Galaxy-Clusters" is in the location you want.
