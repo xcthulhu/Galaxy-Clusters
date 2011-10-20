@@ -78,3 +78,7 @@ Software needed:
 			> fink selfupdate
 		- REDHAT (NOTE: BROKEN)
 			> sudo easy_install-2.6 shapely
+
+	- PGF/TikZ
+		- OS X (fink)
+			> fink install pgf
