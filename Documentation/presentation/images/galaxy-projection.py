@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	# resolution = 'c' means use crude resolution coastlines.
 	m = Basemap(projection='moll',lat_0=0,lon_0=0,resolution='h')
 	# draw parallels and meridians.
-	m.drawparallels(np.arange(-90.,120.,15.),color='white',linewidth=.5)
+	m.drawparallels(np.arange(-90.,180.,15.),color='white',linewidth=.5)
 	m.drawmeridians(np.arange(0.,420.,15.),color='white',linewidth=.5)
 	# Draw a line of longitude
 	m.drawgreatcircle(0,0,4*15,0,color='r',linewidth=1)
