@@ -2,7 +2,8 @@ RAWBASEDIR=..
 # Declares, $(PYTHON) and $(BIN)
 include $(RAWBASEDIR)/maketemplates/master.mk
 
-OBJS=master-clusters master-clusters/Makefile master-map.pdf
+# Master map doesn't need to be built; it's only helpful for the presentation ~ Matt & Adi (Oct 21)
+OBJS=master-clusters master-clusters/Makefile #master-map.pdf
 
 SZ=5
 
