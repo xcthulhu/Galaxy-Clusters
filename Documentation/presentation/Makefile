@@ -1,4 +1,4 @@
-IMAGES=images/Tree-of-life.pdf images/Northwestern-University-Seal.pdf flare-detection/Vincenty.pdf images/Ecliptic-coordinate-system.pdf images/Equatorial-coordinate-system.pdf images/Milky-Way-Galactic-Plane.pdf images/Sgr-A-star.jpg images/Sgr-A-star-orbits images/Sgr-A-star-orbits.png
+IMAGES=images/Tree-of-life.pdf images/Northwestern-University-Seal.pdf flare-detection/Vincenty.pdf images/Ecliptic-coordinate-system.pdf images/Equatorial-coordinate-system.pdf images/Milky-Way-Galactic-Plane.pdf images/Sgr-A-star.jpg images/Sgr-A-star-orbits images/Sgr-A-star-orbits.png images/Blackbody.jpg
 PDFS=presentation.pdf notes.pdf 
 TEXS=main.tex overview/overview.tex flare-detection/flare-detection.tex flare-detection/Vincenty.tex
 

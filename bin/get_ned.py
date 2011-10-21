@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import urllib,urllib2,sys
-from astropysics.coords.coordsys import LatLongCoordinates
 from math import pi
 import ephem
 from master_variables import *

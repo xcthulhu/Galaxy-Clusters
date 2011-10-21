@@ -24,11 +24,11 @@ Blackbody.jpg :
 ESO_-_Milky_Way.jpg : 
 	wget http://upload.wikimedia.org/wikipedia/commons/6/60/ESO_-_Milky_Way.jpg -O $@
 
+Zone-Of-Avoidance-UNCROPPED.pdf : ESO_-_Milky_Way.jpg zone-of-avoidance.py
+	./zone-of-avoidance.py $< $@
+
 Milky-Way-Galactic-Plane-UNCROPPED.pdf : ESO_-_Milky_Way.jpg galaxy-projection.py
 	./galaxy-projection.py $< $@
-
-Milky-Way-Galactic-Plane.pdf : Milky-Way-Galactic-Plane-UNCROPPED.pdf galaxy-projection.py
-	pdfcrop $< $@
 
 Ecliptic-coordinate-system.svg :
 	wget http://upload.wikimedia.org/wikipedia/commons/b/b3/Ecliptic_coordinate_system_%28celestial%29.svg -O $@
@@ -58,3 +58,6 @@ clean :
 	rm -f *.pdf *.svg *.jpg
 	rm -rf Sgr-A-star-orbits
 
+# Probably conflicts with lots of other rules, so make it last
+%.pdf : %-UNCROPPED.pdf
+	pdfcrop $< $@

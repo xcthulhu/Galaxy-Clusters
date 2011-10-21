@@ -24,14 +24,8 @@ nedshifts : $(NEDSHIFTS)
 	$(MAKE) -C $(dir $@) $(notdir $@)
 	touch $@
 
-galaxy-clusters-according-to-ned-UNSORTED.txt : $(NEDSHIFTS)
-	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh . > $@
+galaxy-clusters-according-to-ned.txt : $(NEDSHIFTS)
+	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh . | sort -nr > $@
 
-galaxy-clusters-according-to-ned.txt : galaxy-clusters-according-to-ned-UNSORTED.txt
-	sort -nr $< > $@
-
-galaxy-clusters-UNSORTED.txt : $(NEDSHIFTS)
-	[ -f $@ ] || $(BASEDIR)/bin/chronicle_galaxy_clusters.sh . > $@
-
-galaxy-clusters.txt : galaxy-clusters-UNSORTED.txt
-	sort -nr $< > $@
+galaxy-clusters.txt : $(NEDSHIFTS)
+	$(BASEDIR)/bin/chronicle_galaxy_clusters.sh . | sort -nr > $@
