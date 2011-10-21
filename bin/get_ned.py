@@ -31,8 +31,7 @@ def get_ned(lon,lat,radius=RADIUS):
 			print >>lonstr, gal.lon ; print >>latstr, gal.lat
 			l[1]=lonstr.getvalue().strip() ; l[2]=latstr.getvalue().strip() 
 		return l
-	zobs = map(h, obs) # Didn't have to be functional; could have used a loop I suppose
-	return zobs
+	return map(h, obs) # Didn't have to be functional; could have used a loop I suppose
 
 if __name__ == '__main__':
 	obs = get_ned(*sys.argv[1:])
