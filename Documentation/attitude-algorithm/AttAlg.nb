@@ -1,0 +1,989 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     29503,        980]
+NotebookOptionsPosition[     25233,        831]
+NotebookOutlinePosition[     25851,        856]
+CellTagsIndexPosition[     25808,        853]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[TextData[{
+ "Memo to: HETE Group\nSubject: Attitude Determination\nFrom: John Doty\n\
+Date: 10/19/93\nHETE Memo #: 106\n\n",
+ StyleBox["This memo is available as an interactive ",
+  FontSize->12,
+  FontWeight->"Plain"],
+ StyleBox["Mathematica",
+  FontSize->12,
+  FontWeight->"Plain",
+  FontSlant->"Italic"],
+ StyleBox[" notebook: open /hete/memo/source/LinTrigFunc.ma.",
+  FontSize->12,
+  FontWeight->"Plain"]
+}], "Subsection",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[TextData[{
+ "Fast, simple least squares determination of spacecraft attitude matrices \
+directly from vector star observations: A ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " notebook."
+}], "Section",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+First, define functions for projecting points in a plane tangent to a sphere \
+at the z axis onto the sphere and vice versa. Points on the sphere are \
+represented by normalized 3-vectors, while points in the tangent plane are \
+represented by 2-vectors. Note that this mapping corresponds directly to what \
+happens in a pinhole camera, so it is a good model for how an image of the \
+sky corresponds to the sky itself (lens distortion is neglected).\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+PlaneToSphere[ { x_, y_ } ] := 
+\tNormalize[ {x, y, 1 } ] \
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["SphereToPlane[ {x_,y_,z_} ] := { x / z, y / z }", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "We'll want these functions to work on lists of vectors. The convention here \
+is that a list of vectors will literally have the structure \"list of vectors\
+\" in ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ ": thus, when we want to think of a matrix as a collection of vectors, the \
+vectors themselves will correspond to the rows of the matrix."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+SphereToPlane[ m_ ] := 
+\tMap[ SphereToPlane, m ] /; MatrixQ[ m ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+PlaneToSphere[ m_ ] :=
+\tMap[ PlaneToSphere, m ] /; MatrixQ[ m ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+In three dimensions, there is a direct analogy between vectors and \
+antisymmetric tensors: each has three degrees of freedom. Although the tensor \
+is a more general concept, vectors are easier for humans to understand, so in \
+physics we tend to use \"axial vectors\" instead of antisymmetric tensors. \
+For purposes of putting a least squares fitting problem in matrix form, \
+however, the matrix representation of the tensor is more convenient. The \
+following function converts a vector into its associated antisymmetric \
+tensor. Kids, be sure you are working in a three dimensional space before \
+attempting this at home!\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+Tensorize[ {x_,y_,z_ } ] := {
+\t{  0, -z,  y },
+\t{  z,  0, -x },
+\t{ -y,  x,  0 }}\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+The dot product of an antisymmetric tensor with a vector is the same as the \
+more familiar cross product:\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["Tensorize[ { a, b, c } ] . { d, e, f }", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", "c"}], " ", "e"}], "+", 
+    RowBox[{"b", " ", "f"}]}], ",", 
+   RowBox[{
+    RowBox[{"c", " ", "d"}], "-", 
+    RowBox[{"a", " ", "f"}]}], ",", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", "b"}], " ", "d"}], "+", 
+    RowBox[{"a", " ", "e"}]}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575087241*^9, 3.5116143391424713`*^9, 
+  3.5116143846822147`*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Cross[ { a, b, c } , { d, e, f } ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", "c"}], " ", "e"}], "+", 
+    RowBox[{"b", " ", "f"}]}], ",", 
+   RowBox[{
+    RowBox[{"c", " ", "d"}], "-", 
+    RowBox[{"a", " ", "f"}]}], ",", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", "b"}], " ", "d"}], "+", 
+    RowBox[{"a", " ", "e"}]}]}], "}"}]], "Output",
+ CellChangeTimes->{3.5108505751201*^9, 3.511614339178072*^9, 
+  3.511614384722122*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+To tensorize a list of vectors, we just stack the tensors atop one another:\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+Tensorize[ m_ ] := 
+\tFlatten[ Map[ Tensorize, m ], 1 ] /; MatrixQ[ m ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["Tensorize[ {{ a, b, c },{ d, e, f }} ] // MatrixForm", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {"0", 
+      RowBox[{"-", "c"}], "b"},
+     {"c", "0", 
+      RowBox[{"-", "a"}]},
+     {
+      RowBox[{"-", "b"}], "a", "0"},
+     {"0", 
+      RowBox[{"-", "f"}], "e"},
+     {"f", "0", 
+      RowBox[{"-", "d"}]},
+     {
+      RowBox[{"-", "e"}], "d", "0"}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{3.510850575169444*^9, 3.511614339226387*^9, 
+  3.511614384780882*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "In general, we will be determining attitude from observations that \
+overdetermine the result.. A least squares solution is a good way to proceed \
+in this case. The simplest way to get a least squares solution to an \
+overdetermined equation ",
+ StyleBox["Mx=b",
+  FontWeight->"Bold"],
+ " is to multiply both sides by ",
+ StyleBox["M",
+  FontWeight->"Bold"],
+ StyleBox["T",
+  FontVariations->{"CompatibilityType"->"Superscript"}],
+ " and solve the resulting (no longer overdetermined) matrix equation. This \
+yields an unweighted least squares result. There are much more complicated \
+ways to do this  that may yield better results when the equation is nearly \
+singular, but I don't think they are worth it here."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+LSQSolve[ m_, b_ ] :=
+\tLinearSolve[ Transpose[ m ] . m, Transpose[ m ] . b ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "First order determination of a rotation: a small rotation may be \
+represented by a short vector ",
+ StyleBox["du",
+  FontWeight->"Bold"],
+ " which crossed with a  vector ",
+ StyleBox["v",
+  FontWeight->"Bold"],
+ " gives  the change ",
+ StyleBox["dv",
+  FontWeight->"Bold"],
+ " in ",
+ StyleBox["v",
+  FontWeight->"Bold"],
+ " due to the rotation. The components of ",
+ StyleBox["du",
+  FontWeight->"Bold"],
+ " are conventionally termed \"pitch\", \"yaw\", and \"roll\". The following \
+function finds a first order rotation vector that rotates a set of reference \
+vectors into a set of observations. The method develops as follows:\n\nWe \
+start with an overdetermined set of matrix equations:\n\n",
+ StyleBox["Cross[ du, v ] == dv\n",
+  FontWeight->"Bold"],
+ "\nConvert it to the form of a standard matrix equation:\n\n",
+ StyleBox["-Tensorize[ v ] . du == dv\n",
+  FontWeight->"Bold"],
+ "\nNote that the minus sign is due to the fact that to put the equations \
+into standard form for a matrix equation, we must reverse the cross product. \
+To solve for the unknown vector ",
+ StyleBox["du",
+  FontWeight->"Bold"],
+ ", we just make an overdetermined equation by stacking up the ",
+ StyleBox["v",
+  FontWeight->"Bold"],
+ " and ",
+ StyleBox["dv",
+  FontWeight->"Bold"],
+ " matrices. Our Tensorize function already does this, and we can use Flatten \
+to do the same to the observed differences. In the following function, ",
+ StyleBox["ref",
+  FontWeight->"Bold"],
+ " represents the initial vector ",
+ StyleBox["v",
+  FontWeight->"Bold"],
+ " above, while ",
+ StyleBox["obs",
+  FontWeight->"Bold"],
+ " represents the result of the rotation: thus ",
+ StyleBox["obs - ref",
+  FontFamily->"Courier",
+  FontWeight->"Bold"],
+ " represents ",
+ StyleBox["dv.",
+  FontWeight->"Bold"]
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+PitchYawRoll[ref_, obs_] := 
+    LSQSolve[
+    \t\t-Tensorize[ ref ], 
+    \t\tFlatten[obs - ref]
+    ]
+    \
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+An antisymmetric tensor or axial vector adequately represents the way that a \
+small rotation changes a vector. For larger rotations, however, a rotation \
+matrix is more useful. A rotation matrix doesn't just tell how a vector \
+changes: the product of a rotation matrix and a vector is a rotated vector. \
+For small rotations, one may turn an antisymmetric tensor into a rotation \
+matrix simply by adding an identity matrix to it: the rotated vector is just \
+the original vector plus  its change due to rotation. In the following \
+function we start from the axial vector representation:\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+SmallRotation[ v_ ] :=
+\tTensorize[ v ] + IdentityMatrix[ 3 ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell["\<\
+Alternate version that yields a true rotation matrix. This converges a little \
+faster for bad initial guesses.\
+\>", "Text",
+ CellChangeTimes->{{3.51085118150747*^9, 3.510851204559637*^9}, {
+  3.510851250652597*^9, 3.510851287506442*^9}, {3.511614450101392*^9, 
+  3.5116144538351927`*^9}}],
+
+Cell["\<\
+SmallRotation[ v_ ] := MatrixExp[Tensorize[v]]\
+\>", "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.510850656412572*^9, 3.510850702350956*^9}, {
+  3.5108507881478643`*^9, 3.510850795824193*^9}},
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[TextData[{
+ "A rotation matrix is an orthogonal matrix. The matrices returned by ",
+ StyleBox["SmallRotation",
+  FontWeight->"Bold"],
+ " are orthogonal only to first order. If the rotation is truly small, this \
+is okay, but we need a way to obtain a rotation matrix for large rotations. \
+We can do this by using the Gram-Schmidt procedure to orthonormalize the \
+first order rotation matrix returned by ",
+ StyleBox["SmallRotation",
+  FontWeight->"Bold"],
+ ". The result of the Gram-Schmidt procedure is a true rotation matrix, \
+although not necessarily a good approximation to the desired rotation matrix \
+unless the rotation is small. It is, however, a step in the right direction, \
+so we may use this method to obtain a succession of better approximations. If \
+you've never heard of Gram-Schmidt, see any linear algebra or matrix algebra \
+text: it's not a subtle or difficult algorithm.\n\nThe function ",
+ StyleBox["RefineRotation",
+  FontWeight->"Bold"],
+ " yields an approximation to a rotation matrix rotating a set of reference \
+vectors into a set of observations given an initial guess. It works by \
+rotating the reference vectors by the guess, solving for a (hopefully) small \
+rotation that rotates the rotated reference vectors to match the \
+observations. It then rotates the guess to yield an approximation to the \
+total rotation, and applies Gram-Schmidt to insure that the result is a \
+properly orthogonal rotation matrix."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"RefineRotation", "[", 
+   RowBox[{"ref_", ",", "obs_", ",", "guess_"}], "]"}], ":=", 
+  RowBox[{"Orthogonalize", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"SmallRotation", "[", 
+      RowBox[{"PitchYawRoll", "[", 
+       RowBox[{
+        RowBox[{"ref", ".", 
+         RowBox[{"Transpose", "[", "guess", "]"}]}], ",", "obs"}], "]"}], 
+      "]"}], ".", "guess"}], ",", 
+    RowBox[{"Method", "\[Rule]", "\"\<GramSchmidt\>\""}]}], "]"}]}]], "Input",\
+
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+Now for a demo. The following reference and observation vectors define a \
+rotation through 90 degrees:\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+rv = {
+\t{ 1, 0, 0 },
+\t{ 0, 1, 0 }
+}//N
+
+ov = {
+\t{ 0, 0, 1 },
+\t{ 0, 1, 0 }
+}//N \
+\>", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1.`", ",", "0.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575301758*^9, 3.5116143394594917`*^9, 
+  3.5116143849317093`*^9},
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", "1.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575301758*^9, 3.5116143394594917`*^9, 
+  3.511614384934349*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "We now apply ",
+ StyleBox["RefineRotation",
+  FontWeight->"Bold"],
+ " until it converges: To give the method a workout, we use an identity \
+matrix as our first guess, thus assuming no rotation. This will make our \
+first estimates of the rotation rather inaccurate (it certainly won't be a \
+small rotation atop our initial guess):"
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["RefineRotation[ rv, ov, IdentityMatrix[3]]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.5403023058681397`", ",", "0.`", ",", 
+     RowBox[{"-", "0.8414709848078965`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.8414709848078966`", ",", "0.`", ",", "0.5403023058681397`"}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575497346*^9, 3.511614339495319*^9, 
+  3.511614384967327*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RefineRotation[ rv, ov, % ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.030489295156121483`", ",", "0.`", ",", 
+     RowBox[{"-", "0.9995350933713549`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.9995350933713549`", ",", "0.`", ",", "0.030489295156121483`"}],
+     "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.51085057552731*^9, 3.511614339528405*^9, 
+  3.511614385001009*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RefineRotation[ rv, ov, % ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"4.7257706354240925`*^-6", ",", "0.`", ",", 
+     RowBox[{"-", "0.9999999999888337`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "0.9999999999888336`", ",", "0.`", ",", "4.7257706354240925`*^-6"}], 
+    "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575555284*^9, 3.511614339562779*^9, 
+  3.511614385033721*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RefineRotation[ rv, ov, % ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1.7590333215630055`*^-17", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.`", ",", "0.`", ",", "1.7590333215630055`*^-17"}], "}"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.5108505755889883`*^9, 3.5116143395959177`*^9, 
+  3.511614385072246*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RefineRotation[ rv, ov, % ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.`", ",", "0.`", ",", "0.`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.5108505756759253`*^9, 3.5116143396288033`*^9, 
+  3.511614385101047*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "Convergence is very rapid: four iterations to better than a part in 10",
+ StyleBox["8",
+  FontVariations->{"CompatibilityType"->"Superscript"}],
+ ", five to machine precision. The number of correct digits in the result \
+doubles with each iteration (this is known as \"quadratic convergence\" in \
+the jargon of numerical approximation theory). We can automate this iteration \
+procedure in ",
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " as follows:"
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+Rotation[ref_, obs_, guess_] := 
+  FixedPoint[RefineRotation[ref, obs, #1] & , guess]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["Rotation[ rv, ov, IdentityMatrix[ 3 ]]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.`", ",", "0.`", ",", "0.`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575719823*^9, 3.511614339842976*^9, 
+  3.511614385148245*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell["\<\
+This is a very effective method for reducing observations to rotation \
+matrices as long as some sort  of guess is available: even for a guess 90 \
+degrees off it converges rapidly. Convergence can be much slower for guesses \
+that are worse, however, and the iteration has (unstable) fixed points at \
+some 180 degree rotations:\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+
+ov = {
+\t{ -1, 0, 0 },
+\t{ 0, 1, 0 }}
+Rotation[ rv, ov, IdentityMatrix[ 3 ]]\
+\>", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1"}], ",", "0", ",", "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "1", ",", "0"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575755479*^9, 3.511614339866653*^9, 
+  3.511614385183612*^9},
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1.`", ",", "0.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", "1.`"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575755479*^9, 3.511614339866653*^9, 
+  3.511614385186632*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell["\<\
+Note that in the case above, the method returned an identity matrix, even \
+though the observations imply a 180 degree rotation about the y axis. \
+Perturbing the guess by a slight rotation about the y axis should fix things \
+in this case, although if you  do the iterations by hand the early ones won't \
+make much progress.\
+\>", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Rotation[ rv, ov , IdentityMatrix[3] + 
+\tTensorize[ { 0, 0.0001, 0 } ]]\
+\>", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.`"}], ",", "0.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.5108505757891073`*^9, 3.511614339897482*^9, 
+  3.5116143852176533`*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "For HETE onboard software, ",
+ StyleBox["PitchYawRoll",
+  FontWeight->"Bold"],
+ " applied to an arbitrarily selected set of stars  is obviously the thing to \
+use for the attitude rates. The best results will come from applying it to \
+data from multiple cameras. \n\nFor absolute attitude we may apply ",
+ StyleBox["Rotation",
+  FontWeight->"Bold"],
+ " to our idetified reference stars."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["Addendum: an effective method to get an initial guess", "Section",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[TextData[{
+ "Only two star sightings are needed in principle to determine a rotation \
+matrix. The following method uses only the first two vectors in the lists of \
+observed and reference vectors to solve for a rotation matrix. It is a \
+non-iterative method, so there is no question of convergence. The only \
+restriction is that the vectors must be distinct, and not exactly 180 degrees \
+apart (it should be geometrically obvious that no method can cope with those \
+singular cases). Its major limitation is that it is not a least-squares \
+method, and it cannot take into account more than two stars.\n\nThe method \
+works by using the two vectors to construct an orthonormal set of basis \
+vectors. First, It uses ",
+ StyleBox["GramSchmidt",
+  FontWeight->"Bold"],
+ " on the 2 by 3 matrix of vectors to construct two axes. The first axis is \
+the first vector, while the second is forced to be orthogonal. The third axis \
+is constructed by ",
+ StyleBox["Cross",
+  FontWeight->"Bold"],
+ ". The matrix representation of an orthonormal basis is itself a rotation \
+matrix (from the implicit reference frame to the reference frame defined by \
+the basis), so to get the rotation from one frame to the other, we just dot \
+the inverse (transpose) of one matrix by the other."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+MakeZ[ v_ ] := { v[[ 1 ]], v[[ 2 ]], 
+\tCross[ v[[ 1 ]], v[[ 2 ]] ] }
+\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Basis2", "[", "v_", "]"}], ":=", 
+  RowBox[{"MakeZ", "[", 
+   RowBox[{"Orthogonalize", "[", 
+    RowBox[{
+     RowBox[{"Take", "[", 
+      RowBox[{"v", ",", "2"}], "]"}], ",", 
+     RowBox[{"Method", "\[Rule]", "\"\<GramSchmidt\>\""}]}], "]"}], 
+   "]"}]}]], "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["\<\
+Rotation2[ ref_, obs_ ] :=
+\tTranspose[ Basis2[ obs ] ] . Basis2[ ref ]\
+\>", "Input",
+ InitializationCell->True,
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell["A demonstration:", "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[CellGroupData[{
+
+Cell["guess = Rotation2[ rv, ov ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.`"}], ",", "0.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575953787*^9, 3.511614340010638*^9, 
+  3.511614385332378*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rotation[ rv, ov, guess ]", "Input",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.`"}], ",", "0.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1.`", ",", "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "0.`", ",", 
+     RowBox[{"-", "1.`"}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.510850575988965*^9, 3.511614340076542*^9, 
+  3.5116143853672028`*^9},
+ ImageRegion->{{0, 1}, {0, 1}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "I suspect that a single iteration of ",
+ StyleBox["RefineRotation",
+  FontWeight->"Bold"],
+ " following ",
+ StyleBox["Rotation2",
+  FontWeight->"Bold"],
+ " will be good enough in most cases."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}],
+
+Cell[TextData[{
+ "Roland has a C implementation of these functions. He has pointed out to me \
+that for ",
+ StyleBox["Rotation2",
+  FontWeight->"Bold"],
+ " to work properly, it is very important that the Gram-Schmidt algorithm \
+work by rows rather than by columns."
+}], "Text",
+ ImageRegion->{{0, 1}, {0, 1}}]
+},
+AutoGeneratedPackage->None,
+WindowToolbars->{},
+CellGrouping->Manual,
+WindowSize->{520, 600},
+WindowMargins->{{Automatic, 83}, {Automatic, 90}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->True,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False},
+Magnification->1.25,
+FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 6, \
+2010)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 464, 14, 166, "Subsection"],
+Cell[1024, 36, 247, 7, 155, "Section"],
+Cell[CellGroupData[{
+Cell[1296, 47, 507, 8, 140, "Text"],
+Cell[1806, 57, 142, 5, 50, "Input",
+ InitializationCell->True],
+Cell[1951, 64, 123, 2, 33, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2111, 71, 417, 9, 107, "Text"],
+Cell[2531, 82, 149, 5, 50, "Input",
+ InitializationCell->True],
+Cell[2683, 89, 148, 5, 50, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2868, 99, 684, 11, 201, "Text"],
+Cell[3555, 112, 167, 7, 82, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3759, 124, 162, 4, 51, "Text"],
+Cell[CellGroupData[{
+Cell[3946, 132, 87, 1, 33, "Input"],
+Cell[4036, 135, 472, 16, 33, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4545, 156, 83, 1, 33, "Input"],
+Cell[4631, 159, 466, 16, 33, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5146, 181, 131, 3, 51, "Text"],
+Cell[5280, 186, 155, 5, 50, "Input",
+ InitializationCell->True],
+Cell[CellGroupData[{
+Cell[5460, 195, 101, 1, 33, "Input"],
+Cell[5564, 198, 936, 30, 143, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6549, 234, 778, 17, 192, "Text"],
+Cell[7330, 253, 161, 5, 50, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7528, 263, 1835, 55, 482, "Text"],
+Cell[9366, 320, 192, 9, 115, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9595, 334, 647, 10, 182, "Text"],
+Cell[10245, 346, 145, 5, 50, "Input",
+ InitializationCell->True]
+}, Open  ]],
+Cell[10405, 354, 300, 6, 51, "Text"],
+Cell[10708, 362, 247, 6, 33, "Input",
+ InitializationCell->True],
+Cell[10958, 370, 1499, 26, 407, "Text"],
+Cell[12460, 398, 545, 16, 110, "Input",
+ InitializationCell->True],
+Cell[13008, 416, 159, 4, 51, "Text"],
+Cell[CellGroupData[{
+Cell[13192, 424, 140, 11, 163, "Input"],
+Cell[13335, 437, 328, 9, 33, "Output"],
+Cell[13666, 448, 326, 9, 33, "Output"]
+}, Open  ]],
+Cell[14007, 460, 395, 9, 107, "Text"],
+Cell[CellGroupData[{
+Cell[14427, 473, 91, 1, 33, "Input"],
+Cell[14521, 476, 489, 13, 53, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15047, 494, 76, 1, 33, "Input"],
+Cell[15126, 497, 492, 13, 53, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15655, 515, 76, 1, 33, "Input"],
+Cell[15734, 518, 502, 14, 69, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16273, 537, 76, 1, 33, "Input"],
+Cell[16352, 540, 469, 13, 69, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16858, 558, 76, 1, 33, "Input"],
+Cell[16937, 561, 424, 12, 33, "Output"]
+}, Open  ]],
+Cell[17376, 576, 520, 12, 136, "Text"],
+Cell[17899, 590, 169, 5, 50, "Input",
+ InitializationCell->True],
+Cell[CellGroupData[{
+Cell[18093, 599, 87, 1, 33, "Input"],
+Cell[18183, 602, 420, 12, 33, "Output"]
+}, Open  ]],
+Cell[18618, 617, 385, 7, 107, "Text"],
+Cell[CellGroupData[{
+Cell[19028, 628, 134, 7, 98, "Input"],
+Cell[19165, 637, 333, 10, 33, "Output"],
+Cell[19501, 649, 399, 11, 33, "Output"]
+}, Open  ]],
+Cell[19915, 663, 382, 7, 107, "Text"],
+Cell[CellGroupData[{
+Cell[20322, 674, 129, 4, 50, "Input"],
+Cell[20454, 680, 445, 13, 33, "Output"]
+}, Open  ]],
+Cell[20914, 696, 450, 11, 145, "Text"],
+Cell[21367, 709, 104, 1, 111, "Section"],
+Cell[21474, 712, 1326, 23, 365, "Text"],
+Cell[22803, 737, 154, 6, 66, "Input",
+ InitializationCell->True],
+Cell[22960, 745, 361, 11, 72, "Input",
+ InitializationCell->True],
+Cell[23324, 758, 155, 5, 50, "Input",
+ InitializationCell->True],
+Cell[23482, 765, 64, 1, 32, "Text"],
+Cell[CellGroupData[{
+Cell[23571, 770, 76, 1, 33, "Input"],
+Cell[23650, 773, 441, 13, 33, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[24128, 791, 74, 1, 33, "Input"],
+Cell[24205, 794, 443, 13, 33, "Output"]
+}, Open  ]],
+Cell[24663, 810, 253, 9, 51, "Text"],
+Cell[24919, 821, 310, 8, 89, "Text"]
+}
+]
+*)
+
+(* End of internal cache information *)
