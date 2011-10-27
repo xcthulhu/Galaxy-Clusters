@@ -1,6 +1,6 @@
 Software needed:
-	- Either Ubuntu, REDHAT or OS X
-		* OS X needs fink installed (or macports)
+	- Either Ubuntu, REDHAT or OS X (fink or macports)
+		* OS X needs fink or macports installed
 			* As a rule, we use python easy_install for python modules that don't have external requirements
 
 	- Needs: Python, python developer headers/libraries, inkscape, pdflatex, the "eulervm" font, the latex style files 'preview.sty' and 'type1cm.sty', dvipng, pip or easy_install
@@ -9,6 +9,10 @@ Software needed:
 	- Install under Ubuntu:
 		> sudo apt-get install python python-dev python-pip python-scipy python-matplotlib libgeos-dev pgf preview-latex-style inkscape texlive-fonts-extra dvipng texlive-latex-extra
 		> sudo pip install ./fastcluster http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.1/basemap-1.0.1.tar.gz/download pyephem shapely pyfits
+		> sudo ./ciao-install.sh
+
+	- Install under OS X with MacPorts:
+		> sudo port install py27-scipy py27-basemap py27-pil py27-pyfits py27-shapely wget inkscape texlive-fonts-extra texlive-latex-extra texlive-bin-extra texlive-latex-recommended pgf-devel 
 
 	- Install Python (v2.7/v2.6 for REDHAT)
 		- Ubuntu
