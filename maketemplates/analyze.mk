@@ -43,20 +43,3 @@ nedshifts.tsv : $(NEDARCHIVE)
 
 clean :
 	rm -rf chandra XMM nedshifts.tsv
-
-#XMM : *.tsv
-#	[ -d $@ ] || mkdir $@
-#	for i in `grep $@ $< | cut -f 4` ; do \
-#		if [ ! -d "$(BASEDIR)/$@-obs/$$i" ] ; then \
-#			echo ">>> Downloading $@ ObsId $$i <<<" ; \
-#			./get_XMM_obs.sh $$i ; \
-#			[ -d "$(BASEDIR)/$@-obs/" ] || mkdir "$(BASEDIR)/$@-obs" ; \
-#			[ -d $$i ] && mv $$i "$(BASEDIR)/$@-obs/" ; \
-#		fi ; \
-#		if [ -d $(BASEDIR)/$@-obs/$$i ] ; then \
-#			echo ">>> Linking $@ ObsId $$i <<<" ; \
-#			ln -s ../$(BASEDIR)/$@-obs/$$i $@ ; \
-#		else \
-#			echo ">>> DID NOT MANAGE TO DOWNLOAD XMM OBSID $$i <<<" ; \
-#		fi ; \
-#	done
