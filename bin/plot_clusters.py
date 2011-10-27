@@ -7,10 +7,13 @@ from math import log,pi
 from find_clusters import mkClusters,dataToArray
 from master_variables import ZONE_OF_AVOIDANCE
 import find_clusters 
+from matplotlib import rc
 
 def r2d(r) : return r / (2*pi) * 360
 
 def plot_clusters(pts,filename,markerscale,background_img=None):
+	rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+	rc('text', usetex=True)
 	m = Basemap(projection='moll',lon_0=0,resolution='c')
 	if background_img: m.warpimage(background_img)
 	else: m.drawmapboundary(fill_color='black')
@@ -19,7 +22,7 @@ def plot_clusters(pts,filename,markerscale,background_img=None):
 	for px,py,sz,name in pts:
 		x,y = m(r2d(px),r2d(py))
 		plt.plot(x,y,'*',color='yellow',markersize=markerscale*log(sz,markerscale))
-		plt.text(x,y,name,color='red',size=2)
+		plt.text(x,y,name.replace("_","-"),color='red',size=2)
 	# Plot the zone of avoidance
 	m.drawparallels([ZONE_OF_AVOIDANCE,-ZONE_OF_AVOIDANCE], color='r', linewidth=1)
 	x,y=m(0,-(ZONE_OF_AVOIDANCE-2))
