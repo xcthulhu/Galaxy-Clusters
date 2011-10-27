@@ -3,7 +3,8 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 all : 
 
 %/Makefile : %
-	        echo FIXME > $@
+	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
+	echo include '$$(RAWBASEDIR)'/maketemplates/XMM_individual.mk >> $@
 
 % :
 	$(eval OBSURL := $(shell $(PYTHON) $(BASEDIR)/bin/get_XMM_obs_url.py $@))
