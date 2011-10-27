@@ -133,7 +133,7 @@
     R\<cdot\><wide|v|\<vect\>>=q\<ast\><wide|v|\<vect\>>\<ast\>q<rsup|-1>
   </equation*>
 
-  for all 3-vectors <math|<wide|v|\<vect\>>>. \ Here <math|\<ast\>> is taken
+  For all 3-vectors <math|<wide|v|\<vect\>>>. \ Here <math|\<ast\>> is taken
   to be quaternion multiplication, and a 3-vector
   <math|<wide|v|\<vect\>>=\<langle\>x,y,z\<rangle\>> is represented by the
   quaternion <math|<with|math-font-series|bold|i>x+<with|math-font-series|bold|j>y+<with|math-font-series|bold|k>z>.
@@ -218,7 +218,7 @@
   refinement algorithm<\footnote>
     Note that while transforming a rotation matrix into a quaternion
     generally introduces <em|error>, we are not concerned with this in this
-    context since we do not care about the precision of the initial guess.
+    context a
   </footnote>.
 </body>
 
@@ -232,18 +232,18 @@
 
 <\references>
   <\collection>
-    <associate|auto-1|<tuple|1|1>>
-    <associate|auto-2|<tuple|2|2>>
-    <associate|auto-3|<tuple|3|3>>
-    <associate|estimate|<tuple|1|1>>
-    <associate|exp-tensor|<tuple|1|1>>
-    <associate|footnote-1|<tuple|1|3>>
-    <associate|footnr-1|<tuple|1|3>>
-    <associate|quaternionsec|<tuple|2|2>>
-    <associate|quatregress|<tuple|5|3>>
-    <associate|recur1|<tuple|3|2>>
-    <associate|recur2|<tuple|4|2>>
-    <associate|regression|<tuple|2|1>>
+    <associate|auto-1|<tuple|1|?>>
+    <associate|auto-2|<tuple|2|?>>
+    <associate|auto-3|<tuple|3|?>>
+    <associate|estimate|<tuple|1|?>>
+    <associate|exp-tensor|<tuple|1|?>>
+    <associate|footnote-1|<tuple|1|?>>
+    <associate|footnr-1|<tuple|1|?>>
+    <associate|quaternionsec|<tuple|2|?>>
+    <associate|quatregress|<tuple|5|?>>
+    <associate|recur1|<tuple|3|?>>
+    <associate|recur2|<tuple|4|?>>
+    <associate|regression|<tuple|2|?>>
   </collection>
 </references>
 
