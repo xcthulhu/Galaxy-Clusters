@@ -3,3 +3,4 @@
 .Spotlight-V100
 .com.apple.timemachine.supported
 .fseventsd
+.nfs*
