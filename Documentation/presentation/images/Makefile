@@ -71,7 +71,7 @@ Tree-of-life.pdf : Tree-of-life.svg
 	ps2pdf $@.ps $@
 
 clean :
-	rm -f *.pdf *.svg *.jpg *.png *.gif
+	rm -f *.pdf *.svg *.jpg *.png *.gif *.ps *.pyc
 	rm -rf Sgr-A-star-orbits
 
 # Probably conflicts with lots of other rules, so make it last
