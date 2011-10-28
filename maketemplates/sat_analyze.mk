@@ -1,22 +1,25 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
-XMM_OBSDIR=$(RAWBASEDIR)/Data/XMM-obs
-OBSID_MAKES=$(patsubst %, %/Makefile, $(OBSIDS))
+OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 
-.PHONY : all clean
-.PRECIOUS : $(XMM_OBSDIR) $(XMM_OBSDIR)/%
+.PHONY : all %-all clean
+.PRECIOUS : $(OBSDIR) $(OBSDIR)/%
 
-all : $(OBSIDS) $(OBSID_MAKES)
+all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
 
-%/Makefile :
-	$(MAKE) -C $(XMM_OBSDIR) $@
-	$(MAKE) $(patsubst %/Makefile,%,$@)
+%-all : %
+	$(MAKE) -C $< all
 
 clean :
 	rm -f $(OBSIDS)
 
-$(XMM_OBSDIR)/% :
-	$(MAKE) -C $(XMM_OBSDIR) $(patsubst $(XMM_OBSDIR)/%,%,$@) 
+$(OBSDIR)/% :
+	$(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%/Makefile,$@)
 
-%: $(XMM_OBSDIR)/% 
-	@echo ">>> Linking XMM ObsId $(notdir $@) <<<"
-	ln -fs $< $@
+%: $(OBSDIR)/% 
+	@if [ -d $< ] ; then \
+		echo ">>> LINKING - $(SATELLITE) ObsId $(notdir $@) <<<" ; \
+		echo ln -fs "$<" "$@" ; \
+		ln -fs $< $@ ; \
+	else \
+		echo ">>> NOT LINKING - $< does not exist <<<" ; \
+	fi
