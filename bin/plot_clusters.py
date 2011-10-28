@@ -24,11 +24,11 @@ def plot_clusters(pts,filename,markerscale,background_img=None):
 		plt.plot(x,y,'*',color='yellow',markersize=markerscale*log(sz,markerscale))
 		plt.text(x,y,name.replace("_","-"),color='red',size=2)
 	# Plot the zone of avoidance
-	m.drawparallels([ZONE_OF_AVOIDANCE,-ZONE_OF_AVOIDANCE], color='r', linewidth=1)
+	m.drawparallels([ZONE_OF_AVOIDANCE,-ZONE_OF_AVOIDANCE], color='yellow', linewidth=1)
 	x,y=m(0,-(ZONE_OF_AVOIDANCE-2))
-	plt.text(x,y,r'$b = %i^{\circ}$' % (-(ZONE_OF_AVOIDANCE)),color='r',size=7, ha='center', va='bottom')
+	plt.text(x,y,r'$b = %i^{\circ}$' % (-(ZONE_OF_AVOIDANCE)),color='yellow',size=7, ha='center', va='bottom')
 	x_,y_=m(0,(ZONE_OF_AVOIDANCE-2))                      
-	plt.text(x_,y_,r'$b = %i^{\circ}$' % (ZONE_OF_AVOIDANCE),color='r',size=7,ha='center', va='top')
+	plt.text(x_,y_,r'$b = %i^{\circ}$' % (ZONE_OF_AVOIDANCE),color='yellow',size=7,ha='center', va='top')
 	#plt.title("Galaxy Clusters")
 	plt.savefig(filename,dpi=300)
 

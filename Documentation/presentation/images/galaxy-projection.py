@@ -15,12 +15,12 @@ if __name__ == "__main__":
 	m.drawparallels(np.arange(-90.,180.,15.),color='white',linewidth=.5)
 	m.drawmeridians(np.arange(0.,420.,15.),color='white',linewidth=.5)
 	# Draw a line of longitude
-	m.drawgreatcircle(0,0,4*15,0,color='r',linewidth=1)
+	m.drawgreatcircle(0,0,4*15,0,color='yellow',linewidth=1)
 	x,y=m(4*7.5,-10)
-	plt.text(x,y,r'$\ell$',color='r',size=16)
+	plt.text(x,y,r'$\ell$',color='yellow',size=16)
 	# Draw a line of latitude
-	m.drawgreatcircle(4*15,0,4*15,4*15,color='r',linewidth=1)
+	m.drawgreatcircle(4*15,0,4*15,4*15,color='yellow',linewidth=1)
 	x_,y_=m(4*15+4,2*15)
-	plt.text(x_,y_,r'$b$',color='r',size=16)
+	plt.text(x_,y_,r'$b$',color='yellow',size=16)
 	m.warpimage(sys.argv[1],scale=1.0)
 	plt.savefig(sys.argv[2],dpi=300)
