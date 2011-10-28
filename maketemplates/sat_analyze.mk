@@ -13,6 +13,7 @@ clean :
 	rm -f $(OBSIDS)
 
 $(OBSDIR)/% :
+	$(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%,$@)
 	$(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%/Makefile,$@)
 
 %: $(OBSDIR)/% 
