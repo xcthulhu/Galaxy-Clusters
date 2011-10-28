@@ -10,7 +10,7 @@ FULL_BAND=evt2_full_300_10000_white_band.fits
 BANDFITS=$(B_BAND) $(S_BAND) $(H_BAND) $(S1_BAND) $(S2_BAND) $(FULL_BAND)
 BANDSOURCEFITS=$(patsubst %_band.fits,%_band_srcs.fits,$(BANDFITS))
 
-OBJS=evt2.fits $(BANDFITS) $(BANDSOURCEFITS)
+OBJS=evt2.fits evt2.tsv img.fits $(BANDFITS) $(BANDSOURCEFITS)
 
 .PHONY : all clean
 
@@ -52,8 +52,15 @@ primary/Makefile :
 #  14   grade                            Int2      binned event grade
 #  15   status[4]                        Bit(4)    event status bits
 
+# We just dump all of the contents of the evt2 file to output,
+# parse and create a proper TSV
 evt2.tsv : evt2.fits
-	$(CIAO_INIT) && dmlist "$<[cols #1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15,EQPOS]" data rows=1: | head -8
+	$(CIAO_INIT) && dmlist "$<[cols #1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15,EQPOS]" data rows=1: | tail -n +8 | $(PYTHON) $(BIN)/parse_dmlist_output.py > $@
+
+# Image creation from evt2 files is discussed here:
+# http://cxc.harvard.edu/ciao/threads/reproject_image/
+img.fits : evt2.fits
+	$(CIAO_INIT) && dmcopy "$<[ccd_id=0:3][bin sky=2]" $@
 
 # Rules for detecting sources from a given band
 evt2_%_band.fits : evt2.fits
