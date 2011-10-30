@@ -9,11 +9,9 @@ import re, fileinput, sys
 if __name__ == "__main__":
 
 	# A header describing the columns of the output
-	#header=["time","ccd_id","node_id","expno","chipx","chipy","tdetx","tdety","detx","dety","skyx","skyy","pha","pha_ro","energy","pi","fltgrade","grade","status","RA","DEC"]
-	#print "\t".join(header)
-
-	parse = re.compile("\W*(\d+)\W+([\d\.]+)\W+(\d+)\W+(\d+)\W+(\d+)\W+\((\d+),(\d+)\)\W+\((\d+),(\d+)\)\W+\(\W+([\d\.]+),\W+([\d\.]+)\)\W+\(\W+([\d\.]+),\W+([\d\.]+)\)\W+(\d+)\W+(\d+)\W+([\d\.]+)\W+(\d+)\W+(\d+)\W+(\d+)\W+(\d+)\W+\(\W+([\d\.]+),\W+([\d\.]+)\)")
+	header=["#","time","energy","skyx","skyy","RA","DEC"]
+	print "\t".join(header)
 
 	for line in fileinput.input():
-		try : print "\t".join(map(lambda x: parse.match(line).group(x), range(2,23)))
-		except : print >> sys.stderr, "Could not parse", line
+		l1 = re.sub("[(),]"," ",line)
+		print re.sub("[ ]+","\t",l1).strip()
