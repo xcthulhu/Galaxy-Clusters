@@ -7,7 +7,7 @@ import sys
 
 if __name__ == "__main__":
 	rc('text', usetex=True)
-	rc('font', family='serif')
+	rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 	# lon_0 is central longitude of projection.
 	# resolution = 'c' means use crude resolution coastlines.
 	m = Basemap(projection='moll',lat_0=0,lon_0=0,resolution='h')

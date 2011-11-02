@@ -5,7 +5,8 @@ CIAO_INIT=source $(CIAODIR)/ciao.bash
 all : 
 
 %/Makefile : %
-	echo FIXME > $@
+	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
+	echo include '$$(RAWBASEDIR)'/maketemplates/chandra_individual.mk >> $@
 
 % :
 	$(CIAO_INIT) && download_chandra_obsid $@

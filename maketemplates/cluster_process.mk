@@ -4,7 +4,7 @@ NEDSHIFTS = $(shell echo $(patsubst %,%/nedshifts.tsv,$(wildcard *_*_*_*_*)))
 
 .PHONY : all makes nedshifts clean
 
-all : hits.txt galaxy-clusters.txt galaxy-clusters-according-to-ned.txt
+all : galaxy-clusters-according-to-ned.txt #hits.txt galaxy-clusters.txt 
 
 clean :
 	rm -f *.txt
