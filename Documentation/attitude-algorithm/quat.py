@@ -13,7 +13,7 @@ class quat:
 
     def __str__(self):
         "Yields quaternion as string for printing"
-        return "%g%+gi%+gj%+gk" % tuple(self.q)
+        return "%g + i%g + j%g + k%g" % tuple(self.q)
     
     def __repr__(self):
         "Representation of the quaternion for debugging"
@@ -53,7 +53,7 @@ class quat:
 
     def norm2(self):
         "Yields the square of the norm of a quaternion"
-        return sum(dot(self.q,self.q))
+        return dot(self.q,self.q)
 
     def __abs__(self):
         "Yields the norm of a quaternion"
@@ -71,33 +71,10 @@ class quat:
             return quat(*(self.q / ob))
         else: return self * ob.conjugate() / ob.norm2()
 
-    def exp(self):
-        "Quaternion exponentiation"
-        global _epsilon
-        theta = sqrt(self.q[1]**2 + self.q[2]**2))
-        if (theta <= _epsilon):
-            return quat(exp(w),0,0,0)
-        else:
-            sn = sin(theta) / theta
-            return exp(w) * quat(cos(theta), *(self.q[1:] * sn))
-
-    def log(self):
-        "Quaternion natural logarithm"
-        global _epsilon
-        w,x,y,z = self.q
-        nm = sqrt(x**2 + y**2 + z**2)
-        k = abs(self)
-        if (nm <= _epsilon):
-            return quat(log(k),0,0,0)
-        else:
-            c = acos(w/k) / nm
-            return quat(log(k), x * c, y * c, z * c)
-
     def rot(self,vect):
         "Rotates a vector or a vector defined as a quaternion 0+xi+yj+zk with respect to the quaternion"
-	if isinstance(type(vect), ListType):
-	    return (self*quat(0,*vect)/self).q[1:]
-	else: return self*vect*self.conjugate()
+        try : return (self*quat(0,*vect)/self).q[1:]
+	except : return self*vect/self
 
 def AxisAngleToQuat(theta,v):
     "Yields a quaternion from axis-angle representation of a rotation"
