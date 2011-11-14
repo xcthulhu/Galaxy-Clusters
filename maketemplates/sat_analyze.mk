@@ -7,6 +7,7 @@ OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
 
 %-all : %
+	$(MAKE) -C $(OBSDIR) $</Makefile
 	$(MAKE) -C $< all
 
 clean :
