@@ -1,7 +1,6 @@
 EVT2=$(shell echo *_evt2.fits | head -1)
 
 # The names of the FITS files for the bands of energy that we care about.
-# You could probably use $(shell echo $(EVT2) | sed -e 's/<blah>/<blorg>/') instead of patsubst
 # Designations defined in Kim et al., http://arxiv.org/pdf/astro-ph/0611840
 B_BAND=$(patsubst %_evt2.fits,%_broad_300_8000_green_band.fits,$(EVT2))
 S_BAND=$(patsubst %_evt2.fits,%_soft_300_2500_red_band.fits,$(EVT2)) 
@@ -22,7 +21,18 @@ FULL_SRCS=$(patsubst %.fits,%_srcs.fits,$(FULL_BAND))
 BANDSRCS=$(B_SRCS) $(S_SRCS) $(H_SRCS) $(S1_SRCS) $(S2_SRCS) $(FULL_SRCS)
 
 # The all rule specifies what shall be done with a bare "make" command or "make all"
-all : $(SOURCES) $(BANDFITS) $(BANDSRCS)
+all : evt2.fits #$(SOURCES) $(BANDFITS) $(BANDSRCS)
+
+# Rules for making evt2.fits file
+evt2.fits : primary/evt2.fits
+	ln -s $< $@
+
+primary/evt2.fits : primary/Makefile
+	$(MAKE) -C $(patsubst $(OBSDIR)/%,%/Makefile,$@) $(dir $@) $(notdir $@)
+
+primary/Makefile : 
+	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
+	echo include '$$(RAWBASEDIR)'/maketemplates/chandra_primary.mk >> $@
 
 # Rule for extracting a given band
 %_band.fits : $(EVT2)
@@ -30,6 +40,7 @@ all : $(SOURCES) $(BANDFITS) $(BANDSRCS)
 
 # Rule for detecting sources from a given band
 %_band_srcs.fits : %_band.fits
+	rm -f /tmp/`echo $@ | sed -e 's/.fits//'`*
 	$(CIAO_INIT) && wavdetect infile=$< outfile=$@ scellfile=scell-$@ imagefile=imagefile-$@ defnbkgfile=nbgd-$@ regfile=$@.reg scales="1.0 1.414 2.0 2.828 4.0 5.657 8" clobber=yes 
 
 # Rule for extracting sky to celestial conversion rules

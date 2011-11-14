@@ -4,7 +4,8 @@ import numpy as np
 from math import sqrt,sin,cos,atan2,pi,acos
 from fastcluster import *
 from scipy.cluster.hierarchy import to_tree
-from sets import Set
+if sys.version_info < (2, 4, 0): 
+    from sets import Set as set 
 from master_variables import *
 
 def degToRad(x) : return x / 360. * 2 * pi
@@ -28,7 +29,7 @@ def lineToPair(l) :
 
 # Converts derived data from a tsv to an array of (unique) vectors
 def dataToArray(data) :
-	s = Set(map(lineToPair,data))
+	s = set(map(lineToPair,data))
 	return np.array(list(s))
 
 # Computes the distance matrix from an array of two vectors given a distance function
@@ -56,9 +57,10 @@ def leaves(cls) :
 # and returns a list of lists of ids, seperated by the given distance
 # (forms a paritition over the leaves)
 def getLevel(cls,d) : 
-	if cls == None : return []
-	if cls.dist <= d : return [leaves(cls)]
-	else : return getLevel(cls.left, d) + getLevel(cls.right, d)
+   if cls == None : return []
+   if cls.dist <= d : 
+      return [leaves(cls)]
+   else : return getLevel(cls.left, d) + getLevel(cls.right, d)
 
 # Takes the modulus of some data using a partition and a membership function
 def modData(data, part, memF) :

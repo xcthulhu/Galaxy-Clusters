@@ -1,0 +1,37 @@
+The following is the output from 
+
+> dmlist "evt2.fits[2]" opt=cols
+
+For observation #1595
+
+It specifies the meaning of the second data block in a chandra evt2.fits file
+
+Likewise, there are "pseudo columns" for the following:
+
+Column name:	Description:
+CPC	        maps CHIP to millimeters on the detector
+MSC	        maps DET to mirror off-axis angle and azimuth
+EQPOS	        maps SKY to RA and Dec
+
+See http://cxc.harvard.edu/ciao/ahelp/coords.html for more regarding pseudo-columns
+
+--------------------------------------------------------------------------------
+Columns for Table Block EVENTS
+--------------------------------------------------------------------------------
+ 
+ColNo  Name                 Unit        Type            
+   1   time                 s           Real8     S/C TT corresponding to mid-exposure
+   2   ccd_id                           Int2      CCD reporting event
+   3   node_id                          Int2      CCD serial readout amplifier node
+   4   expno                            Int4      Exposure number of CCD frame containing event
+   5   chip(chipx,chipy)    pixel       Int2      Chip coords
+   6   tdet(tdetx,tdety)    pixel       Int2      ACIS tiled detector coordinates
+   7   det(detx,dety)       pixel       Real4     ACIS detector coordinates
+   8   sky(x,y)             pixel       Real4     sky coordinates
+   9   pha                  adu         Int4      total pulse height of event
+  10   pha_ro               adu         Int4      total read-out pulse height of event
+  11   energy               eV          Real4     nominal energy of event (eV)
+  12   pi                   chan        Int4      pulse invariant energy of event
+  13   fltgrade                         Int2      event grade, flight system
+  14   grade                            Int2      binned event grade
+  15   status[4]                        Bit(4)    event status bits

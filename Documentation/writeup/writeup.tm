@@ -5,7 +5,7 @@
 <\body>
   <doc-data|<doc-title|Detecting Tidal X-Ray Flares in Galaxy
   Clusters>|<doc-author-data|<author-name|Aditya Goil, Karthic Hariharan,
-  Shaunping Liu, Steve Rangle, & Matthew P. Wampler-Doty>>>
+  Shaunping Liu & Matthew P. Wampler-Doty>>>
 
   The purpose of this project is to detect tidal X-Ray flares, thought to be
   caused by accreting super massive holes at the center of galaxies.
@@ -78,8 +78,8 @@
     regression it is also necessary to solve a correspondence problem for
     images.
 
-    <item><strong|Image Segmentation & Model Fitting> - Aditya Goil, Steve
-    Rangle & Matthew P. Wampler-Doty
+    <item><strong|Image Segmentation & Model Fitting> - Aditya Goil & Matthew
+    P. Wampler-Doty
 
     In order to estimate the universal frequency of tidal X-Ray flares, it is
     necessary to estimate <with|font-shape|italic|how many galaxies> we are

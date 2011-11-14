@@ -1,6 +1,4 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
-CIAODIR=/usr/local/ciao-4.3/bin
-CIAO_INIT=source $(CIAODIR)/ciao.bash
 RADIUS=$(shell $(PYTHON) $(BASEDIR)/bin/get_master_radius.py)
 NEDARCHIVE=$(shell echo $(RAWBASEDIR)/Data/nedshifts/$(notdir $(shell pwd))R$(RADIUS).tsv)
 CHANDRA_OBSIDS=$(shell grep chandra $(notdir $(shell pwd)).tsv | cut -f 4) 
@@ -27,19 +25,23 @@ XMM :
 	mkdir $@
 
 # Rule for making $(NEDARCHIVE) ; "$(NEDARCHIVE):" doesn't work
-# >>>FUCKING COLONS<<<
 $(NEDARCHIVE) :
 	$(MAKE) -C $(dir $@) $(notdir $@)
 
 nedshifts.tsv : $(NEDARCHIVE)
 	ln -sf $< $@
 
+hst : $(RAWBASEDIR)/Data/HST-obs/$(notdir $(shell pwd))
+	ln -sf $< $@
+
+$(BASEDIR)/Data/HST-obs/$(notdir $(shell pwd)) :
+	make -C $(BASEDIR)/Data/HST-obs/ $(notdir $@)
+
 %/Makefile : %
 	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
 	echo 'SATELLITE=$<' >> $@
 	echo 'OBSIDS=$(shell grep $< $(notdir $(shell pwd)).tsv | cut -f 4)' >> $@
-	echo include '$$(RAWBASEDIR)'/maketemplates/$<_analyze.mk >> $@
-
+	echo include '$$(RAWBASEDIR)'/maketemplates/sat_analyze.mk >> $@
 
 clean :
 	rm -rf chandra XMM nedshifts.tsv

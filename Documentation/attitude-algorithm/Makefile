@@ -1,4 +1,4 @@
-all: attitude_control.pdf
+all: spherical_reg.pdf
 
 %.pdf : %.tm
 	texmacs -c $< $@ -q
