@@ -6,13 +6,14 @@ from math import pi
 import sys
 
 def random_quat():
-    return quat(1, uniform(0,2 * pi),
-                   uniform(0,2 * pi),
-                   uniform(0,2 * pi)).normalize()
+    return quat(uniform(0,2 * pi),
+                uniform(0,2 * pi),
+                uniform(0,2 * pi),
+                uniform(0,2 * pi)).normalize()
 
 if __name__ == "__main__":
     try: trials = int(sys.argv[1])
-    except: trials = 15
+    except: trials = 1
     print "Generating", trials, "random quaternion(s):"
     for i in range(trials):
       print random_quat()
