@@ -31,11 +31,11 @@ $(NEDARCHIVE) :
 nedshifts.tsv : $(NEDARCHIVE)
 	ln -sf $< $@
 
+$(RAWBASEDIR)/Data/HST-obs/$(notdir $(shell pwd)) :
+	make -C $(BASEDIR)/Data/HST-obs/ $(notdir $@)
+
 hst : $(RAWBASEDIR)/Data/HST-obs/$(notdir $(shell pwd))
 	ln -sf $< $@
-
-$(BASEDIR)/Data/HST-obs/$(notdir $(shell pwd)) :
-	make -C $(BASEDIR)/Data/HST-obs/ $(notdir $@)
 
 %/Makefile : %
 	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
