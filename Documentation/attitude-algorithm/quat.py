@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from numbers import *
+
 from numpy import sqrt, dot, array
 from types import *
 
