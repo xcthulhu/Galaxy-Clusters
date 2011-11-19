@@ -2,6 +2,9 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 
 OBSID=$(notdir $(shell pwd))
 
+# Designations defined in Kim et al., http://arxiv.org/pdf/astro-ph/0611840
+# This obscure webpage says how to translate between XMM and chandra:
+# http://heasarc.gsfc.nasa.gov/W3Browse/all/ic10xmmcxo.html
 B_BAND=$(OBSID)_evt2_broad_300_8000_green_band.fits
 S_BAND=$(OBSID)_evt2_soft_300_2500_red_band.fits
 H_BAND=$(OBSID)_evt2_hard_2500_8000_blue_band.fits
@@ -82,6 +85,9 @@ sources/%_band_srcs.fits : %_band.fits
 	$(MAKE) sources scell band_images nbgd band_regs
 	rm -f /tmp/$(shell echo $< | sed -e 's/.fits//')*
 	$(CIAO_INIT) && wavdetect infile=$< outfile=$@ scellfile=scell/scell-$< imagefile=band_images/imagefile-$< defnbkgfile=nbgd/nbgd-$< regfile=band_regs/$<.reg scales="1.0 1.414 2.0 2.828 4.0 5.657 8" clobber=yes
+
+clustered_sources : $(BANDSOURCEFITS)
+	$(PYTHON) $(BIN)/cluster_fits_srcs.py $(SRC_CLSTR_RADIUS) $@ $^
 
 clean : primary/Makefile secondary/Makefile
 	rm -rf $(OBJS) sources scell band_images nbgd band_regs *$(OBSID)*.fits $(OBSID)*.reg *$(OBSID)*.header
