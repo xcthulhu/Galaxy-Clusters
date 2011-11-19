@@ -1,14 +1,51 @@
 <TeXmacs|1.0.7.2>
 
-<style|generic>
+<style|article>
 
 <\body>
-  <section|Obtaining an Estimate of the Spherical Regression<label|estimate>>
+  <doc-data|<doc-title|Automated Astrometry Realignment for FITS
+  Images>|<doc-author-data|<author-name|Adity Goil>|<\author-email>
+    adigoil@gmail.com
+  </author-email>>||<doc-author-data|<author-name|Karthic
+  Hariharan>|<author-email|karthich@gmail.com>>|<doc-author-data|<author-name|Shaunping
+  Liu>>|<doc-author-data|<author-name|Matthew
+  Wampler-Doty>|<author-email|matt@w-d.org>>|>
 
-  To begin, we review the method of spherical regression proposed in (FIXME:
-  cite rivest1), which was independently invented and implemented in the
+  <\abstract>
+    In this paper we present novel algorithms for correcting astrometry
+    disparities in disparate FITS images. \ The algorithms are designed such
+    that the FITS images may have originated fro potentially captured by
+    different sattellites and ground based telescopes at different times and
+    wavelengths.
+  </abstract>
+
+  <section|Introduction>
+
+  <section|The <em|Lost In Space> Correspondence Problem>
+
+  <subsection|Overview>
+
+  <subsection|Algorithm Implemented>
+
+  <subsection|Results>
+
+  <section|Spherical Regression<label|estimate>>
+
+  <subsection|Overview>
+
+  Historically, a wide variety of researchers have considered the problem of
+  computing an approximate rotation from one set of unit sphere coordinate to
+  matched correspondents. \ In\ 
+
+  In this paper, we present an algorithm first implemented in the
   <with|font-shape|italic|High Energy Transient Explorer 2> (HETE2) flight
-  computer.
+  computer. \ The core algorithm, which uses iterative refinement, has been
+  subsequently reinvented in (FIXME: cite rivest1). \ Our algorithm provides
+  two refinements:\ 
+
+  <subsection|Algorithm Implemented>
+
+  <subsubsection|Core Algorithm: Hill Climbing Algorithm<label|hill-climb>>
 
   Let <math|<with|math-font|cal|S>\<assign\>{\<langle\><with|mode|text|<math|<wide|v|\<vect\>>>><rsub|0>,<wide|u|\<vect\>><rsub|0>\<rangle\>,\<langle\><with|mode|text|<math|<wide|v|\<vect\>>>><rsub|1>,<wide|u|\<vect\>><rsub|1>\<rangle\>,\<ldots\>}>
   be a finite set of pairs of corresponding vectors on a unit sphere.
@@ -69,7 +106,7 @@
   equation may be easily represented in matrix form as follows:
 
   <\equation*>
-    <below|<wide*|<matrix|<tformat|<table|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|0>)>>|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|1>)>>|<row|<cell|\<vdots\>>>|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|n>)>>>>>|\<wide-underbrace\>>|M<rsub|<with|math-font|cal|S>>>\<cdot\><wide|\<omega\>|\<vect\>>\<approx\><below|<wide*|<matrix|<tformat|<table|<row|<cell|(<wide|u|\<vect\>><rsub|0>-<wide|v|\<vect\>><rsub|0>)<rsup|\<top\>>>>|<row|<cell|(<wide|u|\<vect\>><rsub|1>-<wide|v|\<vect\>><rsub|1>)<rsup|\<top\>>>>|<row|<cell|\<vdots\>>>|<row|<cell|(<wide|u|\<vect\>><rsub|n>-<wide|v|\<vect\>><rsub|n>)<rsup|\<top\>>>>>>>|\<wide-underbrace\>>|b<rsub|<with|math-font|cal|S>>>
+    <below|<wide*|<matrix|<tformat|<table|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|0>)>>|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|1>)>>|<row|<cell|\<vdots\>>>|<row|<cell|-<with|math-font-series|bold|T>(<wide|v|\<vect\>><rsub|n>)>>>>>|\<wide-underbrace\>>|M>\<cdot\><wide|\<omega\>|\<vect\>>\<approx\><below|<wide*|<matrix|<tformat|<table|<row|<cell|(<wide|u|\<vect\>><rsub|0>-<wide|v|\<vect\>><rsub|0>)<rsup|\<top\>>>>|<row|<cell|(<wide|u|\<vect\>><rsub|1>-<wide|v|\<vect\>><rsub|1>)<rsup|\<top\>>>>|<row|<cell|\<vdots\>>>|<row|<cell|(<wide|u|\<vect\>><rsub|n>-<wide|v|\<vect\>><rsub|n>)<rsup|\<top\>>>>>>>|\<wide-underbrace\>>|b>
   </equation*>
 
   Here <math|M> is the leading matrix, composed of stacks of tensors and
@@ -96,7 +133,7 @@
   is trivial, it does not yield a proper rotation matrix; it is necessary to
   run the <em|Graham-Schmidt> algorithm over the result to produce an
   ortho-normal matrix; let <math|<overline|M>> represent the result of
-  running Graham-Schmidt over a Matrix <math|M>.
+  ortho-normalizing <math|M>.
 
   These observations give rise to an iterative algorithm for computing
   spherical regression, akin to the textbook Newton-Raphson method. \ Each
@@ -124,7 +161,46 @@
   illustrate a refined algorithm for computing an <em|initial guess>, which
   in practice overcomes the issue of slow convergence.
 
-  <section|Quaternions<label|quaternionsec>>
+  <subsubsection|First Refinement: Initial Estimate>
+
+  In Ÿ<reference|hill-climb>, we used <em|unity> as the starting point for
+  our iterative refinement algorithm, as reflected in equations
+  (<reference|recur1>). This may be slow converging when
+  <math|<with|math-font|cal|S>> represents a <math|180<rsup|\<circ\>>>
+  rotation. \ In this section we propose an initial guess to over-come this
+  potential slow convergence.
+
+  We begin by picking two pairs <math|\<langle\>v<rsub|0>,u<rsub|0>\<rangle\>>
+  and <math|\<langle\>v<rsub|1>,u<rsub|1>\<rangle\>> from
+  <math|<with|math-font|cal|S>> at random. \ Assume that <math|v<rsub|0>> and
+  <math|v<rsub|1>> are distinct and not anti-podal, and similarly for
+  <math|u<rsub|0>> and <math|u<rsub|1>>. \ First, we transform
+  <math|v<rsub|1>> and <math|u<rsub|1>> into normal vectors that are
+  orthogonal to <math|v<rsub|0>> and <math|u<rsub|0>>, respectively:
+
+  <\eqnarray*>
+    <tformat|<table|<row|<cell|v<rsub|1><rsup|\<bot\>>>|<cell|\<assign\>>|<cell|<frac|v<rsub|1>-(v<rsub|0>\<cdot\>v<rsub|1>)
+    v<rsub|0>|\<\|\|\>v<rsub|1>-(v<rsub|0>\<cdot\>v<rsub|1>)
+    v<rsub|0>\<\|\|\>>>>|<row|<cell|u<rsub|1><rsup|\<bot\>>>|<cell|\<assign\>>|<cell|<frac|u<rsub|1>-(u<rsub|1>\<cdot\>u<rsub|0>)
+    u<rsub|0>|\<\|\|\>u<rsub|1>-(u<rsub|1>\<cdot\>u<rsub|0>)
+    u<rsub|0>\<\|\|\>>>>>>
+  </eqnarray*>
+
+  \ We may now obtain two rotation matrices: the first rotates the plane
+  formed between <math|v<rsub|0>> and <math|v<rsub|1>> to the
+  <with|font-shape|italic|xy>-plane, and the second rotates the plane between
+  <math|u<rsub|0>> and <math|u<rsub|1>> similarly:
+
+  <\eqnarray*>
+    <tformat|<table|<row|<cell|R<rsub|v>>|<cell|\<assign\>>|<cell|<matrix|<tformat|<table|<row|<cell|v<rsub|0>>>|<row|<cell|v<rsub|1><rsup|\<bot\>>>>|<row|<cell|v<rsub|0>\<times\>v<rsub|1><rsup|\<bot\>>>>>>>>>|<row|<cell|R<rsub|u>>|<cell|\<assign\>>|<cell|<matrix|<tformat|<table|<row|<cell|u<rsub|0>>>|<row|<cell|u<rsub|1><rsup|\<bot\>>>>|<row|<cell|u<rsub|0>\<times\>u<rsub|1><rsup|\<bot\>>>>>>>>>>>
+  </eqnarray*>
+
+  Note that the transpose of a rotation matrix is its inverse. \ This yields
+  <math|R<rsup|\<top\>><rsub|u>\<cdot\>R<rsub|v>> as an initial estimate at a
+  transformation of the reference points <math|v> to the observed points
+  <math|u>.
+
+  <subsubsection|Second Refinement: Quaternion Representation>
 
   Hamilton (FIXME: cite Hamilton) was the first to observe that for every
   rotation <math|R>, there is a unique quaternion <math|q> such that:
@@ -158,68 +234,32 @@
   the special case of <math|q=a+<with|math-font-series|bold|i>b>, this is
   exactly Euler's equation.
 
-  As in the case of matrix exponentiation, we have the first order
-  approximation that:
+  As in the case of matrix exponentiation, our algorithm implements a first
+  order approximation; obtained by taking the first two terms of the Tailor
+  series of the exponential:
 
   <\equation*>
     e<rsup|<wide|\<omega\>|\<vect\>>/2>\<approx\>1+<wide|\<omega\>|\<vect\>>/2
   </equation*>
 
-  Let <math|q\<Uparrow\><with|math-font|cal|S>\<assign\>{\<langle\>q\<ast\><wide|v|\<vect\>>\<ast\>q<rsup|-1>,<wide|u|\<vect\>>\<rangle\><space|1spc>\|<space|1spc>\<langle\><wide|v|\<vect\>>,<wide|u|\<vect\>>\<rangle\>\<in\><with|math-font|cal|S>}>.
-  \ The following recurrence corresponds to (<reference|recur1>) and
-  (<reference|recur2>):
+  Let <math|q\<Uparrow\><with|math-font|cal|S>\<assign\>{\<langle\>q\<ast\><wide|v|\<vect\>>\<ast\>q<rsup|-1>,<wide|u|\<vect\>>\<rangle\><space|1spc>\|<space|1spc>\<langle\><wide|v|\<vect\>>,<wide|u|\<vect\>>\<rangle\>\<in\><with|math-font|cal|S>}>,
+  and let <math|<wide|q|\<bar\>>=<frac|q|\<\|\|\>q\<\|\|\>>>. \ The standard
+  means of transforming a rotation matrix into a quaternion yields a suitable
+  initial estimate for use in our iterative refinement algorithm<\footnote>
+    Note that while transforming a rotation matrix into a quaternion
+    generally introduces <em|error>, we are not concerned with this in this
+    context a
+  </footnote>. \ The following recurrence corresponds to (<reference|recur1>)
+  and (<reference|recur2>):
 
   <\eqnarray*>
-    <tformat|<table|<row|<cell|q<rsub|0>>|<cell|\<assign\>>|<cell|1<eq-number><label|quatregress>>>|<row|<cell|q<rsub|n+1>>|<cell|\<assign\>>|<cell|<frac|(1+<frac|<wide|\<omega\>|\<vect\>><rsub|q<rsub|n>\<Uparrow\><with|math-font|cal|S>>|2>)\<ast\>q<rsub|n>|<left|\|\|>(1+<frac|<wide|\<omega\>|\<vect\>><rsub|q<rsub|n>\<Uparrow\><with|math-font|cal|S>>|2>)\<ast\>q<rsub|n><right|\|\|>><eq-number>>>>>
+    <tformat|<table|<row|<cell|q<rsub|0>>|<cell|\<assign\>>|<cell|q<rsub|initial><eq-number><label|quatregress>>>|<row|<cell|q<rsub|n+1>>|<cell|\<assign\>>|<cell|<wide|<left|(>1+<frac|<wide|\<omega\>|\<vect\>><rsub|q<rsub|n>\<Uparrow\><with|math-font|cal|S>>|2><right|)>\<ast\>q<rsub|n>|\<bar\>><eq-number>>>>>
   </eqnarray*>
 
   As before, one may set a threshold <math|\<varepsilon\>> and end iteration
   where <math|\<\|\|\>q<rsub|n>-q<rsub|n-1>\<\|\|\>\<less\>\<varepsilon\>>.
 
-  <section|Iterative Refinement & Making an Initial Estimate>
-
-  In each of the previous two sections, we used <em|unity> as the starting
-  point for our iterative algorithm, as reflected in equations
-  (<reference|recur1>) and (<reference|quatregress>). This may be slow
-  converging when <math|<with|math-font|cal|S>> represents a
-  <math|180<rsup|\<circ\>>> rotation. \ In this section we propose an initial
-  guess to over-come this potential slow convergence.
-
-  We begin by picking two pairs <math|\<langle\>v<rsub|0>,u<rsub|0>\<rangle\>>
-  and <math|\<langle\>v<rsub|1>,u<rsub|1>\<rangle\>> from
-  <math|<with|math-font|cal|S>> at random. \ Assume that <math|v<rsub|0>> and
-  <math|v<rsub|1>> are distinct and not anti-podal, and similarly for
-  <math|u<rsub|0>> and <math|u<rsub|1>>. \ First, we transform
-  <math|v<rsub|1>> and <math|u<rsub|1>> into normal vectors that are
-  orthogonal to <math|v<rsub|0>> and <math|u<rsub|0>>, respectively:
-
-  <\eqnarray*>
-    <tformat|<table|<row|<cell|v<rsub|1><rsup|\<bot\>>>|<cell|\<assign\>>|<cell|<frac|v<rsub|1>-(v<rsub|0>\<cdot\>v<rsub|1>)
-    v<rsub|0>|\<\|\|\>v<rsub|1>-(v<rsub|0>\<cdot\>v<rsub|1>)
-    v<rsub|0>\<\|\|\>>>>|<row|<cell|u<rsub|1><rsup|\<bot\>>>|<cell|\<assign\>>|<cell|<frac|u<rsub|1>-(u<rsub|1>\<cdot\>u<rsub|0>)
-    u<rsub|0>|\<\|\|\>u<rsub|1>-(u<rsub|1>\<cdot\>u<rsub|0>)
-    u<rsub|0>\<\|\|\>>>>>>
-  </eqnarray*>
-
-  \ We may now obtain two rotation matrices: the first rotates the plane
-  formed between <math|v<rsub|0>> and <math|v<rsub|1>> to the
-  <with|font-shape|italic|xy>-plane, and the second rotates the plane between
-  <math|u<rsub|0>> and <math|u<rsub|1>> similarly:
-
-  <\eqnarray*>
-    <tformat|<table|<row|<cell|R<rsub|v>>|<cell|\<assign\>>|<cell|<matrix|<tformat|<table|<row|<cell|v<rsub|0>>>|<row|<cell|v<rsub|1><rsup|\<bot\>>>>|<row|<cell|v<rsub|0>\<times\>v<rsub|1><rsup|\<bot\>>>>>>>>>|<row|<cell|R<rsub|u>>|<cell|\<assign\>>|<cell|<matrix|<tformat|<table|<row|<cell|u<rsub|0>>>|<row|<cell|u<rsub|1><rsup|\<bot\>>>>|<row|<cell|u<rsub|0>\<times\>u<rsub|1><rsup|\<bot\>>>>>>>>>>>
-  </eqnarray*>
-
-  Note that the transpose of a rotation matrix is its inverse. \ This yields
-  <math|R<rsup|\<top\>><rsub|u>\<cdot\>R<rsub|v>> as an initial estimate at a
-  transformation of the reference points <math|v> to the observed points
-  <math|u>. \ The standard means of transforming a rotation matrix into a
-  quaternion yields a suitable initial estimate for use in our iterative
-  refinement algorithm<\footnote>
-    Note that while transforming a rotation matrix into a quaternion
-    generally introduces <em|error>, we are not concerned with this in this
-    context a
-  </footnote>.
+  <subsection|Results>
 </body>
 
 <\initial>
@@ -233,13 +273,23 @@
 <\references>
   <\collection>
     <associate|auto-1|<tuple|1|?>>
+    <associate|auto-10|<tuple|3.2.2|?>>
+    <associate|auto-11|<tuple|3.2.3|?>>
+    <associate|auto-12|<tuple|3.3|?>>
     <associate|auto-2|<tuple|2|?>>
-    <associate|auto-3|<tuple|3|?>>
-    <associate|estimate|<tuple|1|?>>
+    <associate|auto-3|<tuple|2.1|?>>
+    <associate|auto-4|<tuple|2.2|?>>
+    <associate|auto-5|<tuple|2.3|?>>
+    <associate|auto-6|<tuple|3|?>>
+    <associate|auto-7|<tuple|3.1|?>>
+    <associate|auto-8|<tuple|3.2|?>>
+    <associate|auto-9|<tuple|3.2.1|?>>
+    <associate|estimate|<tuple|3|?>>
     <associate|exp-tensor|<tuple|1|?>>
     <associate|footnote-1|<tuple|1|?>>
     <associate|footnr-1|<tuple|1|?>>
-    <associate|quaternionsec|<tuple|2|?>>
+    <associate|hill-climb|<tuple|3.2.1|?>>
+    <associate|quaternionsec|<tuple|4|?>>
     <associate|quatregress|<tuple|5|?>>
     <associate|recur1|<tuple|3|?>>
     <associate|recur2|<tuple|4|?>>
@@ -250,19 +300,42 @@
 <\auxiliary>
   <\collection>
     <\associate|toc>
-      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|Obtaining
-      an Estimate of the Spherical Regression<label|estimate>>
+      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|1<space|2spc>Introduction>
       <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
       <no-break><pageref|auto-1><vspace|0.5fn>
 
-      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|Quaternions<label|quaternionsec>>
+      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|2<space|2spc>The
+      Astronomer's Correspondence Problem>
       <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
       <no-break><pageref|auto-2><vspace|0.5fn>
 
-      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|Iterative
-      Refinement & Making an Initial Estimate>
+      <with|par-left|<quote|1.5fn>|2.1<space|2spc>Overview
       <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
-      <no-break><pageref|auto-3><vspace|0.5fn>
+      <no-break><pageref|auto-3>>
+
+      <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|3<space|2spc>Spherical
+      Regression<label|estimate>> <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-4><vspace|0.5fn>
+
+      <with|par-left|<quote|1.5fn>|3.1<space|2spc>Overview
+      <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-5>>
+
+      <with|par-left|<quote|1.5fn>|3.2<space|2spc>Algorithm Implemented
+      <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-6>>
+
+      <with|par-left|<quote|3fn>|3.2.1<space|2spc>Basic Hill Climbing
+      Algorithm<label|hill-climb> <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-7>>
+
+      <with|par-left|<quote|3fn>|3.2.2<space|2spc>First Refinement:
+      Quaternion Representation <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-8>>
+
+      <with|par-left|<quote|3fn>|3.2.3<space|2spc>Initial Estimate
+      <datoms|<macro|x|<repeat|<arg|x>|<with|font-series|medium|<with|font-size|1|<space|0.2fn>.<space|0.2fn>>>>>|<htab|5mm>>
+      <no-break><pageref|auto-9>>
     </associate>
   </collection>
 </auxiliary>
