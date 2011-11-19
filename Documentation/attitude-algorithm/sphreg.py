@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 from itertools import chain
 import numpy as np
-import quat
+from quat import quat, MatToQuat
 from numpy import dot, cross, transpose, array
 from numpy.linalg import solve
 from math import sqrt
 
-"Fixed ortho to give out normal vector"
 def orth(v0,v1):
     "Transforms v1 into a normal vector orthogonal to v0"
     v0a, v1a = array(v0), array(v1)
@@ -15,7 +14,6 @@ def orth(v0,v1):
 
 def rot(v0,v1):
     "Returns a rotation matrix which transforms the plane between v0 and v1 to the xy-plane"
-    "Fixed mat3 to np.array"
     return np.array([v0, orth(v0,v1), cross(v0,orth(v0,v1))])
 
 def init(S):
@@ -23,36 +21,33 @@ def init(S):
     (v0,u0),(v1,u1) = S[0],S[1]
     Rv = rot(v0,v1)
     TRu = rot(u0,u1).transpose()
-    mat = map(lambda x: list(x), dot(TRu, Rv))
+    #mat = map(lambda x: list(x), dot(TRu, Rv))
     #print "Rv:", Rv 
     #print "TRu:", TRu 
     #print "dot:", dot(TRu, Rv)
     #print "mat3:", mat3(dot(TRu, Rv))
-    print mat
-    return quat(t3(dot(TRu,Rv)))"What is this?"
-
-"Tensor works"
+    #print mat
+    return MatToQuat(dot(TRu,Rv))
+ 
 def tensor(v):
     "Returns a tensor corresponding to a three-vector"
     x,y,z = v
-    return [[0,-z,y],[z,0,-x],[-y,x,0]]
-
-def im(q):
-    "Returns the imaginary part of a quaternion as a list"
-    return [q.x, q.y, q.z]
+    return np.array([[0,-z,y],[z,0,-x],[-y,x,0]])
 
 def flatten(lol): 
     "Flattens a list of lists"
     return list(chain.from_iterable(lol))
 
-"Looks like it follows the pdf version of your paper"
+# 
 def refine(S,q):
     "Refines a quaternion q to one closer to the spherical regression for S"
-    qvs = [q * quat([0] + list(v)) * q.inverse() for [v,u] in S]
-    M = flatten([tensor(im(qv)) for qv in qvs])
+    # See section 3.2.1 of the paper
+    qvs = [q.rot(v) for [v,u] in S]
+    M = flatten([-tensor(qv) for qv in qvs])
     b = flatten([u for [v,u] in S])
     w = solve(dot(transpose(M),M), dot(transpose(M),b))
-    qq = quat([0] + list(w/2)).exp() * q
+    #return type(w)
+    qq = quat(1,*(w/2))
     return qq.normalize()
 
 epsilon = .0000001 # Error margin for iterative algorithm
@@ -61,11 +56,14 @@ def sphreg(S):
     "Perform a spherical regression on S by iterating"
     qold = q = init(S)
     qold *= 1/epsilon
-    print q, qold
+    #print q, qold
+    i = 0
     while (abs(q - qold) >= epsilon):
         qold = q
         q = refine(S,qold)
-	print q, qold
+        i += 1
+        print i
+	#print q, qold
     return q
 
 # test data
