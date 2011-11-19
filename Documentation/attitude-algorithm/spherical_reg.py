@@ -1,23 +1,26 @@
 #!/usr/bin/env python
-
-from cgkit.cgtypes import mat3, quat
 from itertools import chain
+import numpy as np
+import quat
 from numpy import dot, cross, transpose, array
 from numpy.linalg import solve
+from math import sqrt
 
+"Fixed ortho to give out normal vector"
 def orth(v0,v1):
     "Transforms v1 into a normal vector orthogonal to v0"
     v0a, v1a = array(v0), array(v1)
-    vv = v1a - dot(v0a,v1a) * v0a
-    return array(vv / dot(vv,vv))
+    vv = v1a - (dot(v0a,v1a) * v0a)
+    return array(vv / sqrt(dot(vv,vv)))
 
 def rot(v0,v1):
     "Returns a rotation matrix which transforms the plane between v0 and v1 to the xy-plane"
-    return mat3([v0, orth(v0,v1), cross(v0,orth(v0,v1))])
+    "Fixed mat3 to np.array"
+    return np.array([v0, orth(v0,v1), cross(v0,orth(v0,v1))])
 
 def init(S):
     "Returns an initial estimate of the spherical regression as a quaternion"
-    v0,u0,v1,u1 = S[0][0],S[0][1],S[1][0],S[1][1]
+    (v0,u0),(v1,u1) = S[0],S[1]
     Rv = rot(v0,v1)
     TRu = rot(u0,u1).transpose()
     mat = map(lambda x: list(x), dot(TRu, Rv))
@@ -26,8 +29,9 @@ def init(S):
     #print "dot:", dot(TRu, Rv)
     #print "mat3:", mat3(dot(TRu, Rv))
     print mat
-    return quat(mat3(dot(TRu,Rv)))
+    return quat(t3(dot(TRu,Rv)))"What is this?"
 
+"Tensor works"
 def tensor(v):
     "Returns a tensor corresponding to a three-vector"
     x,y,z = v
@@ -41,6 +45,7 @@ def flatten(lol):
     "Flattens a list of lists"
     return list(chain.from_iterable(lol))
 
+"Looks like it follows the pdf version of your paper"
 def refine(S,q):
     "Refines a quaternion q to one closer to the spherical regression for S"
     qvs = [q * quat([0] + list(v)) * q.inverse() for [v,u] in S]
