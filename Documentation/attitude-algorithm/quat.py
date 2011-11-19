@@ -11,6 +11,12 @@ class quat:
         self.q = array([float(w),float(x),
                         float(y),float(z)])
 
+    def __getitem__(self, key):
+	return self.q[key]
+
+    def __setitem__(self, key, value):
+	self.q[key] = value
+
     def __str__(self):
         "Yields quaternion as string for printing"
         return "%g + i%g + j%g + k%g" % tuple(self.q)
@@ -54,6 +60,9 @@ class quat:
     def norm2(self):
         "Yields the square of the norm of a quaternion"
         return dot(self.q,self.q)
+
+    def im():
+	return self.q[1:]
 
     def __abs__(self):
         "Yields the norm of a quaternion"
