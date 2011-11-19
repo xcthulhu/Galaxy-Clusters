@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import urllib,urllib2,sys,re,os
+import urllib,urllib2,sys,re,os,errno
 
 if __name__ == '__main__':
 	response = urllib2.urlopen('http://xsa.esac.esa.int:8080/aio/jsp/product.jsp?obsno=%s' % (sys.argv[1]))
@@ -11,4 +11,4 @@ if __name__ == '__main__':
 		f = open(os.path.join('XSA-logs',"%s.html" % (sys.argv[1])), 'w')
 		print >>f, html
 		f.close()
-		sys.exit(1)
+		sys.exit(errno.EPERM)
