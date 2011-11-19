@@ -3,8 +3,7 @@ import numpy as np
 import sys, errno
 from random import uniform
 from scipy.misc import toimage
-from collections import defaultdict
-from itertools import combinations, product
+from correspondents import corr_hash, get_points
 
 def make_test_image(shape, freq):
 	"""make_test_image(shape, frequency)
@@ -38,60 +37,22 @@ def translate(m,(ytr,xtr)):
 	elif (0 > xtr and 0 > ytr) : n[:w+xtr,:h+ytr] = m[-xtr:,-ytr:]
 	return n
 
-def get_points(m) : 
-	"""get_points(m)
-	- Outputs: A generator of the points in m that correspond are not zero"""
-	# If you don't understand generators:
-	# http://wiki.python.org/moin/Generators
-	for (x,y) in product(range(m.shape[0]),range(m.shape[1])):
-		if m[x][y] : yield (x,y)
-
-def euclidean((x0,y0),(x1,y1)):
-	"""euclidean(pt0,pt1)
-	- Outputs: The Euclidean distance between pt0 and pt1"""
-	return np.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2)
-
-def get_dist_hash(m,ndigits = 2,dist=euclidean):
-	"""get_dist_hash(m, ndigits = 2, dist = euclidean)
-	- Outputs: A hash table of sets of points in m that have the same distance from one another"""
-	
-	# defaultdict is awesome :D
-	# http://docs.python.org/library/collections.html#collections.defaultdict
-	h = defaultdict(set)
-
-	# Also, itertools.combinations is sweet:
-	# http://docs.python.org/library/itertools.html#itertools.combinations
-	# Sets of sets in python are tricky - stackoverflow.com for the win
-	# http://stackoverflow.com/questions/5931291/how-can-i-create-a-set-of-sets-in-python
-	for (pt1,pt2) in combinations(get_points(m), 2):
-		h[dist(pt1,pt2)].add(frozenset([pt1,pt2]))
-	return h
-
-def corr_hash(m0,m1,dist=euclidean):
-	"""corr_hash(m0,m1)
-	- Outputs: A hash table of points in m0 and corresponding points in m1"""
-	hm1dist = get_dist_hash(m1,dist=dist)
-	hcorr = defaultdict(int)
-	for (po0,po1) in combinations(get_points(m0),2):
-		for (pd0,pd1) in hm1dist[dist(po0,po1)]:
-			hcorr[(po0,pd0)] += 1
-			hcorr[(po0,pd1)] += 1
-			hcorr[(po1,pd0)] += 1
-			hcorr[(po1,pd1)] += 1
-	return hcorr
-
 if __name__ == '__main__':
 	if len(sys.argv) < 6:
 		print >>sys.stderr, "Usage: %s x-dimension y-dimension frequency x-translation y-translation" % sys.argv[0]
 		sys.exit(errno.EINVAL)
 	shape = (int(sys.argv[1]),int(sys.argv[2]))
 	trans = (int(sys.argv[4]),int(sys.argv[5]))
-	mydist = lambda pt0,pt1: round(euclidean(pt0,pt1),2)
+	mydist = lambda pt0,pt1: round(euclidean(pt0,pt1),1)
 
 	# Simulation
 	m = make_test_image(shape,float(sys.argv[3]))
 	mtr = translate(m,trans)
 	#toimage(translate(m,trans)).show()
 	h = corr_hash(m,mtr)
-	vals = sorted(h.values())
+	orig_pts = len(list(get_points(m)))
+	vals = h.values()
+	ran = np.max(vals) - np.min(vals)
+	corrs = len(filter(lambda x: x >= ran * .5, vals))
+	print float(corrs) / orig_pts
 	#print len(get_dist_hash(m,dist=mydist)).keys())
