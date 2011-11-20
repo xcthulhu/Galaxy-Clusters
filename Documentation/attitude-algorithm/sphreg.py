@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from itertools import chain
 import numpy as np
-from quat import quat, MatToQuat
+from quat import quat, matToQuat, quatToMat
 from numpy import dot, cross, transpose, array
 from numpy.linalg import solve
 from math import sqrt
@@ -21,13 +21,7 @@ def init(S):
     (v0,u0),(v1,u1) = S[0],S[1]
     Rv = rot(v0,v1)
     TRu = rot(u0,u1).transpose()
-    #mat = map(lambda x: list(x), dot(TRu, Rv))
-    #print "Rv:", Rv 
-    #print "TRu:", TRu 
-    #print "dot:", dot(TRu, Rv)
-    #print "mat3:", mat3(dot(TRu, Rv))
-    #print mat
-    return MatToQuat(dot(TRu,Rv))
+    return matToQuat(dot(TRu,Rv))
  
 def tensor(v):
     "Returns a tensor corresponding to a three-vector"
@@ -38,17 +32,15 @@ def flatten(lol):
     "Flattens a list of lists"
     return list(chain.from_iterable(lol))
 
-# 
 def refine(S,q):
     "Refines a quaternion q to one closer to the spherical regression for S"
     # See section 3.2.1 of the paper
-    qvs = [q.rot(v) for [v,u] in S]
-    M = flatten([-tensor(qv) for qv in qvs])
-    b = flatten([u for [v,u] in S])
+    S_ = [[q.rot(v),u] for [v,u] in S]
+    M = flatten([-tensor(v) for [v,_] in S_])
+    b = flatten([u-v for [v,u] in S_])
     w = solve(dot(transpose(M),M), dot(transpose(M),b))
-    #return type(w)
-    qq = quat(1,*(w/2))
-    return qq.normalize()
+    qq = quat(1,*(w/2)).normalize()
+    return qq
 
 epsilon = .0000001 # Error margin for iterative algorithm
 
@@ -61,9 +53,8 @@ def sphreg(S):
     while (abs(q - qold) >= epsilon):
         qold = q
         q = refine(S,qold)
-        i += 1
-        print i
-	#print q, qold
+        #i += 1
+        #print i
     return q
 
 # test data

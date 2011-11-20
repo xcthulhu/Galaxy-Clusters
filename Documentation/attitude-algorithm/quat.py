@@ -90,7 +90,16 @@ def AxisAngleToQuat(theta,v):
     sn = sin(theta/2.0)
     return quat(cos(theta/2.0),v[0]*sn,v[1]*sn,v[2]*sn).normalize()
 
-def MatToQuat(m):
+def quatToMat(q):
+    "Converts a quaternion to a rotation matrix"
+    return array(
+	[[1-2*q[2]**2-2*q[3]**2, 2*(q[1]*q[2]-q[3]*q[0]), 2*(q[1]*q[3]+q[2]*q[0])],
+	 [2*(q[1]*q[2]+q[3]*q[0]), 1-2*q[1]**2-2*q[3]**2, 2*(q[2]*q[3]-q[1]*q[0])],
+	 [2*(q[1]*q[3]-q[2]*q[0]), 2*(q[2]*q[3]+q[1]*q[0]), 1-2*q[1]**2-2*q[2]**2]]
+	)
+
+
+def matToQuat(m):
     "Converts a rotation matrix to a quaternion"
     tr=m[0][0]+m[1][1]+m[2][2]
     if tr > _epsilon:
