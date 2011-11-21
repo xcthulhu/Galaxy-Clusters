@@ -18,7 +18,7 @@ def gramm(X):
     """Returns the Gramm-Schmidt orthogonalization of matrix X"""
     # Blogs for the win: http://adorio-research.org/wordpress/?p=184
     V = np.array(X)
-    k,n = V.shape[0], V.shape[1]
+    n,k = V.shape[0], V.shape[1]
     for j in range(k):
       for i in range (j):
         D = sum([V[p][i]*V[p][j] for p in range(n)])
@@ -26,7 +26,7 @@ def gramm(X):
           V[p][j] -= (D * V[p][i])
       invnorm = 1.0 / np.sqrt(sum([(V[p][j])**2 for p in range(n)]))
       for p in range(n): V[p][j] *= invnorm
-    return V
+    return V / np.linalg.det(V)
 
 def init(S):
     "Returns an initial estimate of the spherical regression"
