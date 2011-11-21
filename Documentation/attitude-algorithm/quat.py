@@ -19,7 +19,7 @@ class quat:
 
     def __str__(self):
         "Yields quaternion as string for printing"
-        return "%g + i%g + j%g + k%g" % tuple(self.q)
+        return "%g + %gi + %gj + %gk" % tuple(self.q)
     
     def __repr__(self):
         "Representation of the quaternion for debugging"
@@ -62,6 +62,7 @@ class quat:
         return dot(self.q,self.q)
 
     def im():
+	"Imaginary part of the quaternion"
 	return self.q[1:]
 
     def __abs__(self):
@@ -81,9 +82,9 @@ class quat:
         else: return self * ob.conjugate() / ob.norm2()
 
     def rot(self,vect):
-        "Rotates a vector or a vector defined as a quaternion 0+xi+yj+zk with respect to the quaternion"
-        try : return (self*quat(0,*vect)/self).q[1:]
-	except : return self*vect/self
+        "Rotates a vector or a quaternion 0+xi+yj+zk with respect to the quaternion"
+        try : return (self*quat(0,*vect)*self.conjugate()).q[1:]
+	except : return self*vect*self.conjugate()
 
 def AxisAngleToQuat(theta,v):
     "Yields a quaternion from axis-angle representation of a rotation"
