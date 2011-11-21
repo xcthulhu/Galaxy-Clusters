@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 from itertools import chain, product
-from quat import quat, matToQuat, quatToMat
-from numpy import dot, cross, transpose, array
+from numpy import dot, cross
 from numpy.linalg import solve
 
 def orth(v0,v1):
@@ -55,21 +54,19 @@ def refine(S,rot):
     M = np.array(flatten([-tensor(v) for [v,_] in S_]))
     b = np.array(flatten([u-v for [v,u] in S_]))
     w = solve(dot(transpose(M),M), dot(transpose(M),b))
-    q = gramm(np.identity(3) + tensor(w))
-    return dot(q,rot)
+    return gramm(dot(gramm(np.identity(3) + tensor(w)),rot))
 
-epsilon = .0000001 # Error margin for iterative algorithm
+epsilon = .00000000001 # Error margin for iterative algorithm
 
 def sphreg(S):
     "Perform a spherical regression on S by iterating"
-    rold = r = init(S)
-    rold *= 1/epsilon
-    epm = np.identity(3) * epsilon
-    i = 0
-    while not (np.abs(r - rold) >= epm).all():
-        rold = r
+    rold = init(S)
+    r = refine(S,rold)
+    epm = np.ones((3,3)) * epsilon
+    while not (np.abs(r - rold) <= epm).all():
+        rold = np.array(r)
         r = refine(S,r)
-    return q
+    return r
 
 # test data
 S1 = [[[0.600884, -0.189253, -0.776609], [-0.608323, 0.629988, 
