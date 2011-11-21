@@ -1,58 +1,37 @@
 #!/usr/bin/env python
-import numpy as np
 import sys, errno
-from random import uniform
-from scipy.misc import toimage
-from correspondents import corr_hash, get_points
-
-def make_test_image(shape, freq):
-	"""make_test_image(shape, frequency)
-	
-	- Outputs: A binary numpy array m where m.shape == shape and
-
-	  (# of non-zero points)
-	   ---------------------   == freq
-	      total points
-	  
-	  the points are uniformly distributed"""
-	def maybe(x) : 
-		if uniform(0,1) < freq : return 1
-		else : return 0
-	m = np.zeros(shape)
-	return np.vectorize(maybe)(m)
-
-def translate(m,(ytr,xtr)):
-	"""translate (m,(ytr,xtr)) 
-
-	- Outputs: a translated image matrix of m"""
-	w,h = m.shape[0], m.shape[1]
-	n = np.zeros(m.shape)
-	if not ( (-w <= xtr <= w) and (-h <= ytr <= h)) :
-		raise NameError("OutOfBounds")
-	# Python slices; if you don't know what this is please read:
-	# http://stackoverflow.com/questions/509211/good-primer-for-python-slice-notation
-	if (0 <= xtr and 0 <= ytr) : n[xtr:,ytr:] = m[:w-xtr,:h-ytr]
-	elif (0 > xtr and 0 <= ytr) : n[:w+xtr,ytr:] = m[-xtr:,:h-ytr]
-	elif (0 <= xtr and 0 > ytr) : n[xtr:,:h+ytr] = m[:w-xtr,-ytr:]
-	elif (0 > xtr and 0 > ytr) : n[:w+xtr,:h+ytr] = m[-xtr:,-ytr:]
-	return n
+import numpy as np
+import matplotlib.pyplot as plt
+from correspondents import correspondents, get_points
+from sphreg_diagnostics import make_test_image
+from scipy.ndimage.interpolation import shift, rotate
+from pylab import Arrow
 
 if __name__ == '__main__':
-	if len(sys.argv) < 6:
-		print >>sys.stderr, "Usage: %s x-dimension y-dimension frequency x-translation y-translation" % sys.argv[0]
-		sys.exit(errno.EINVAL)
-	shape = (int(sys.argv[1]),int(sys.argv[2]))
-	trans = (int(sys.argv[4]),int(sys.argv[5]))
-	mydist = lambda pt0,pt1: round(euclidean(pt0,pt1),1)
+   if len(sys.argv) < 10:
+      print >>sys.stderr, "Usage: %s x-dimension y-dimension frequency x-translation y-translation rotation-degrees thresh decimation output_file" % sys.argv[0]
+      sys.exit(errno.EINVAL)
+   shape = (int(sys.argv[1]),int(sys.argv[2]))
+   trans = (int(sys.argv[4]),int(sys.argv[5]))
+   theta = float(sys.argv[6])
 
-	# Simulation
-	m = make_test_image(shape,float(sys.argv[3]))
-	mtr = translate(m,trans)
-	#toimage(translate(m,trans)).show()
-	h = corr_hash(m,mtr)
-	orig_pts = len(list(get_points(m)))
-	vals = h.values()
-	ran = np.max(vals) - np.min(vals)
-	corrs = len(filter(lambda x: x >= ran * .5, vals))
-	print float(corrs) / orig_pts
-	#print len(get_dist_hash(m,dist=mydist)).keys())
+   # Simulation
+   m = make_test_image(shape,float(sys.argv[3]))
+   mtr = rotate(shift(m,trans), theta)
+
+   # Plot Image
+   fig = plt.figure()
+   ax = fig.add_subplot(111,axisbg='k',aspect='equal')
+   ax.set_yticks([])
+   ax.set_xticks([])
+   plt.xlim(0,int(sys.argv[1]))
+   plt.ylim(0,int(sys.argv[2]))
+   for (x,y) in get_points(m):
+	   ax.scatter(x,y,c='y',marker=(5,1),s=100)
+   plt.savefig(sys.argv[9])
+   for (x,y) in get_points(mtr):
+	   ax.scatter(x,y,c='r',marker=(5,1),s=100)
+   plt.savefig("with-adjusted-" + sys.argv[9])
+   for (x0,y0),(x1,y1) in correspondents(m,mtr,thresh=float(sys.argv[7]),ndigits=int(sys.argv[8])):
+	ax.add_patch(Arrow(x0,y0,x1-x0,y1-y0,color='w',linewidth=5,alpha=.25))
+   plt.savefig("with-arrows-" + sys.argv[9])
