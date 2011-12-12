@@ -22,7 +22,7 @@ def plot_clusters(pts,filename,markerscale,background_img=None):
 	for px,py,sz,name in pts:
 		x,y = m(r2d(px),r2d(py))
 		plt.plot(x,y,'*',color='yellow',markersize=markerscale*log(sz,markerscale))
-		plt.text(x,y,name.replace("_","-"),color='red',size=2)
+		plt.text(x,y,name.replace("_","-").replace("#","No. "),color='red',size=2)
 	# Plot the zone of avoidance
 	m.drawparallels([ZONE_OF_AVOIDANCE,-ZONE_OF_AVOIDANCE], color='yellow', linewidth=1)
 	x,y=m(0,-(ZONE_OF_AVOIDANCE-2))
