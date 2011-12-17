@@ -1,32 +1,4 @@
-./catalogues/
-	Scripts for scraping heasarc.gsfc.nasa.gov for tables of archived Chandra/XMM/ROSAT observation data
-	- filters the Galactic plane
-
-./fastcluster/
-	Daniel Müllner's fast (ie, O(n^2)) agglomerative clustering algorithm for python/R
-	- http://math.stanford.edu/~muellner/fastcluster.html
-
-chronicle_galaxy_clusters.sh
-	To be called on a master-cluster directory outputted from find_clusters.py
-	- greps through *.tsv files produced from agglomerative clustering, searching for the keyphrase 'Cluster of Galaxies', counts the number of observations whenever theres a hit
-	- Outputs to ./master-cluster/galaxy_clusters.txt
-
-find_clusters.py
-	A python script/module for cataloging clusters in a tsv 
-		* needs master.tsv generated from catalogues
-	- Generates ./master-cluster/ directory
-
-get_XMM_obs_url.py
-	Goes to xsa.esac.esa.int website containing XMM archive data and requests an ObsID, printing to output the FTP site that XSA says to go to when you do that
-
-get_XMM_obs.sh
-	Calls wget on output of get_XMM_obs_url.py, if any
-
-make_catalogue.py
-	Wrapper script that calls routines in find_clusters.py and plot_clusters.py
-
-make_makefiles.sh
-	Populates ./master-cluster/ directory with Makefiles for each subdirectory
-
-plot_clusters.py
-	A python script/module for doing a Mollweide projection of clustered observations onto the sky  
+Obscure, useful documentation:
+	- Step by Step XMM/SAS tutorial: http://xmm.esa.int/sas/current/documentation/threads/src_find_thread_stepbystep.shtml
+	- Energy bands conversions for Chandra v. XMM: http://heasarc.gsfc.nasa.gov/W3Browse/all/ic10xmmcxo.html
+	- Magic to get Kapteyn to work with XMM-EVT files: http://xmm.vilspa.esa.es/xmmhelp/Backgrounds?id=44331;page=9;user=guest
