@@ -1,0 +1,397 @@
+\documentclass{amsart}
+\usepackage{geometry,hyperref,calc,capt-of,ifthen}
+\geometry{letterpaper}
+
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\tmem}[1]{{\em #1\/}}
+\newcommand{\tmtextit}[1]{{\itshape{#1}}}
+\newcommand{\tmtexttt}[1]{{\ttfamily{#1}}}
+\newcommand{\tmfloatcontents}{}
+\newlength{\tmfloatwidth}
+\newcommand{\tmfloat}[5]{
+  \renewcommand{\tmfloatcontents}{#4}
+  \setlength{\tmfloatwidth}{\widthof{\tmfloatcontents}+1in}
+  \ifthenelse{\equal{#2}{small}}
+    {\ifthenelse{\lengthtest{\tmfloatwidth > \linewidth}}
+      {\setlength{\tmfloatwidth}{\linewidth}}{}}
+    {\setlength{\tmfloatwidth}{\linewidth}}
+  \begin{minipage}[#1]{\tmfloatwidth}
+    \begin{center}
+      \tmfloatcontents
+      \captionof{#3}{#5}
+    \end{center}
+  \end{minipage}}
+%%%%%%%%%% End TeXmacs macros
+
+\begin{document}
+
+\title{Progress Report}
+\author{Matthew P. Wampler-Doty\\
+\texttt{mpwd@w-d.org}}
+\maketitle
+
+\begin{abstract}
+  In this report, we detail efforts to produce an automated, large scale
+  survey of distant ($z \in [.05, .3]$) galaxy clusters imaged by XMM,
+  Chandra, and the Hubble Space Telescope, in search of X-Ray tidal flares. \
+  This research is follow up to work first presented in
+  {\cite{maksym_constraining_2010,maksym_tidal_2010}}.
+\end{abstract}
+
+\section{Overview}
+
+There has been considerable attention to X-Ray tidal flare events, in large
+part due to exciting discoveries by the research team behind the SWIFT
+satellite {\cite{bloom_possible_2011,metzger_afterglow_2011}}. \ In our
+research, we study archival data from Chandra and XMM-Newton, searching for
+signs of relativistic outflows from tidal disruption events in distant,
+previously inactive galactic nuclei. \ Our research builds on previous work
+carried out in {\cite{maksym_tidal_2010}}; most of our efforts have been
+focused on developing automated processes for carrying out massive data
+analysis. \ The objective of our research is to try to estimate the universal
+rate in which these events occur. \ This research is intended as a follow up
+to {\cite{maksym_constraining_2010,maksym_tidal_2010}}.
+
+We detail our efforts in the subsequent sections. \ In
+{\S}\ref{Agglomeration}, we go over our method for discovering and grouping
+observations for future analysis. \ In {\S}\ref{Data_Retrieval}, we detail our
+methods of automated data retrieval and mention what we have already done. \
+In {\S}\ref{analysis}, we discuss progress made so far in automated data
+analysis. \ In {\S}\ref{future} we outline the road ahead, detailing the work
+left to accomplish.
+
+The code written primarily utilizes GNU make and Python version 2.6+. \ It is
+provided for free on the web, for the inspection of any interested researcher:
+
+\begin{center}
+  \href{https://github.com/xcthulhu/Galaxy-Clusters}{https://github.com/xcthulhu/Galaxy-Clusters}
+\end{center}
+
+\section{Observation Agglomeration and Classification}\label{Agglomeration}
+
+\subsection{HEASARC Queries\label{heasarc}\label{ACIS}}
+
+The first step in our analysis the automated retrieval of all of the entire
+catalog of Chandra and XMM legacy observations using the HEASARC database. \
+We make use of python's
+\href{http://docs.python.org/library/urllib.html}{\tmtexttt{urllib}} and
+\href{http://docs.python.org/library/urllib2.html}{\tmtexttt{urllib2}} to
+carry out automated queries to a NASA's CGI script for interfacing this
+database{\footnote{NASA's CGI script for interfacing with HEASARC, using POST
+methods, can be found here:
+\href{http://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl}{http://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl}}}.
+\ Some additional filtering is necessary afterwords - in particular,
+observation IDs corresponding to planned observations and unreleased data are
+discarded, as well as all observations within $15'$ of the galactic plane, and
+only Chandra observations using the ACIS are considers.
+
+Once all of the observations have been acquired, we face the following
+difficulty: the labels assigned to objects are not strictly consistent between
+missions. \ It is not feasible to use the tags provided by researchers to
+classify observations of the same object. \ Our solution is to use
+\tmtextit{hierarchical agglomerative clustering} to classify groups of
+observations geometrically by position in the sky, eliminating the need rely
+on labels.
+
+\subsection{Fast Complete Linkage Hierarchical Agglomerative
+Clustering\label{fastagglomeration}}
+
+Hierarchical agglomerative clustering is a technique commonly employed in
+\tmtextit{computational phylogenetic tree} research in evolutionary ecology
+{\cite{press_section_2007}}. \ We repurpose one of these algorithms for
+classifying groups of observations by position.
+
+Abstractly, hierarchical agglomerative clustering algorithms compute a tree
+representing hierarchical relationships between points in some set. In
+agglomerative clustering, each point is grouped with its nearest neighbor
+according to some metric and rule system. \ The system then recurses, only now
+over points and previously computed groups of points, building a new stage of
+the tree. The process ends when all of the points are grouped together. A
+terminal node of the resulting tree represents one the original points, while
+branches represent groups of points. We always use the {\tmem{complete
+linkage}} rule in our applications, where groups of points in the tree are
+labeled with a value representing the maximum distance the points are apart
+according to some metric.
+
+As of December 11, 2011 HEASARC reports that there are 12870 suitable archival
+observations between XMM and Chandra. We have found that given the number of
+observations, agglomerative clustering is intractable without a fast
+algorithm. The algorithm we use{\footnote{We use the \tmtexttt{fastcluster}
+python module, available here: \href{http://math.stanford.edu/\~{
+}muellner/fastcluster.html}{http://math.stanford.edu/\~{
+}muellner/fastcluster.html}. The code implemented runs in $\mathcal{O} (n^2)$
+time (where $n$ is the number of points being clustered). \ Other library
+implementations of agglomerative clustering use algorithms that often run in
+$\mathcal{O} (n^3$) time; this includes the \tmtexttt{scipy} python module and
+\tmtexttt{matlab}.}} is given in {\cite{defays_efficient_1977}}.
+
+After computing the hierarchical agglomeration, we find each group of
+observations separated by at most $8'$ and output the observation IDs of that
+group to a designated file. \ As of December 11, 2011 the system computes 5846
+groups of observations $8'$ apart.
+
+Figure \ref{fig1} depicts the all of the groups of observations found by the
+algorithm that have 5 or more entries. The size of each node, designating a
+group of observations, is proportional to the $\log (n)$, where $n$ is the
+number of observations in that group.
+
+\begin{center}
+  \tmfloat{h}{small}{figure}{FIXME}{Groups of observations in the XMM and
+  Chandra archives}\label{fig1}
+\end{center}
+
+\subsection{NED Queries}\label{ned}
+
+Not every group is suitable for analysis, as we are interested in galaxy
+clusters in particular. \ To find only those groups of observations
+corresponding to a galaxy cluster, we use Cal-tech's NED database as the basis
+of further processing. For each agglomeration of observations, we query NED to
+find all of the galaxy clusters within the vicinity. \ An arbitrary
+observation $O$ from each group of observations is selected, and a query is
+sent to NED for all galaxy cluster objects in a $15'$ radius of $O$. \ Queries
+are automated using a python script using \tmtexttt{urllib} and
+\tmtexttt{urllib2}{\footnote{Cal-tech's NED database can be accessed using GET
+methods and the following CGI script:
+\href{http://ned.ipac.caltech.edu/cgi-bin/nph-objsearch}{http://ned.ipac.caltech.edu/cgi-bin/nph-objsearch}}},
+just as in the case of HEASARC as discussed in {\S}\ref{heasarc}.
+
+After all of the NED queries have been computed, the results are filtered such
+that only galaxy clusters with $z$-values in $[.05, .3]$ are kept. \ Any
+agglomeration which does not have a suitable galaxy cluster in its vicinity is
+discarded.
+
+Figure \ref{fig2} depicts the results of this further filtering carried out on
+the groups of observations found in {\S}\ref{fastagglomeration}. \ In
+addition, this figure uses transparency to reflect $z$ values, with the most
+transparent reflecting a $z = .05$ while the least transparent reflects $z =
+.3$.
+
+\begin{center}
+  \tmfloat{h}{small}{figure}{FIXME}{Groups of observations of galaxy
+  clusters}\label{fig2}
+\end{center}
+
+\section{Data Retrieval}\label{Data_Retrieval}
+
+In this section we detail how data is retrieved corresponding to the
+previously grouped observations.
+
+After each group of suitable observations is found, we retrieve data files for
+each observation in those groups. \ In addition, we also retrieve HST data in
+the vicinity of each group of observations, in the interest of finding optical
+follow-ups to our found sources.
+
+To date, approximately 615 GB of data have been downloaded as part of our
+survey.
+
+\subsection{Chandra}
+
+Each Chandra observation is retrieved using the
+\tmtexttt{download\_chandra\_obsid} script, using the CIAO{\footnote{CIAO is
+available from the following website:
+\href{http://cxc.harvard.edu/ciao/}{http://cxc.harvard.edu/ciao/}}} data
+analysis software for chandra.
+
+\subsection{XMM}
+
+A python script was written to automate the acquisition of XMM-Newton data. \
+Specifically, we automated interaction with the XSA online interface to XMM
+archive data{\footnote{The XSA website's CGI script can be found here:
+\href{http://xsa.esac.esa.int:8080/aio/jsp/product.jsp}{http://xsa.esac.esa.int:8080/aio/jsp/product.jsp}}}.
+\ After querying, the XSA CGI-script returns an HTML page containing an FTP
+address of the prepared data. \ Regular expressions are used to parse this
+webpage to acquire this FTP address. \ The data is then retrieved using the
+UNIX \tmtexttt{wget} facility.
+
+\subsection{Hubble}
+
+For each group of observations, all of the Hubble observations in the vicinity
+are found by querying the Space Telescope Science Institute{\footnote{A
+catalog of archival HST observations can be accessed using GET methods and the
+following CGI script:
+\href{http://archive.stsci.edu/hst/search.php}{http://archive.stsci.edu/hst/search.php}}}.
+\ After a catalog of HST observations is found for a given group of
+observations, those HST observations making use of the WFPC, WFPC2, WFC3, and
+ACS instruments are selected. \ This is done because these instruments provide
+the best optical imaging. \ From each entry, a URL is retrieved containing the
+archival data{\footnote{Data products are found using the specifications found
+in
+\href{http://www.stsci.edu/instruments/wfpc2/Wfpc2\_dhb/wfpc2\_ch22.html}{http://www.stsci.edu/instruments/wfpc2/Wfpc2\_dhb/wfpc2\_ch22.html}
+. \ Files are retrieved using GET methods and the following CGI script:
+\href{http://www.stsci.edu/instruments/wfpc2/Wfpc2\_dhb/wfpc2\_ch22.html}{http://www.stsci.edu/instruments/wfpc2/Wfpc2\_dhb/wfpc2\_ch22.html}}}
+using the UNIX command \tmtexttt{wget}.
+
+\section{Data Analysis}\label{analysis}
+
+In this section we detail how the data we have retrieved is analyzed. \ To
+date, we have focused on chandra data analysis. \ Note that as we mentioned in
+{\S}\ref{ACIS}, we only look at the Chandra ACIS instrument. \ This due to the
+fact that this is the only instrument on Chandra with sub-arcsecond precision.
+
+\subsection{Chandra Reprocessing}
+
+Due to a number of errors in the preprocessing of the Chandra archival data,
+it is necessary to run a reprocessing script before any further data
+manipulation is performed{\footnote{A detailed discussion of the reasons for
+reprocessing Chandra data files can be found here:
+\href{http://cxc.harvard.edu/ciao4.4/threads/createL2/index.html}{http://cxc.harvard.edu/ciao4.4/threads/createL2/index.html}}}.
+\ Reprocessing is carried out using the \tmtexttt{chandra\_repro} script from
+the CIAO software suite.
+
+\subsection{Chandra Band Extraction}
+
+After each chandra observation has been reprocessed, we extract particular
+energy bands from the newly produced \tmtexttt{evt2.fits} event files of
+(filtered) CCD events. \ This is done using the CIAO tool
+\tmtexttt{dmcopy}{\footnote{The syntax used is \tmtexttt{dmcopy
+evt2.fits[energy>$\alpha$,energy<$\beta$] result.fits}, which extracts events
+with energy $\eta$ (in electron-Volts)where $\eta \in [\alpha, \beta]$}}. \ We
+perform extraction for each of the following bands found in Table \ref{tab1},
+defined in {\cite{kim_chandra_2007}}.
+
+\begin{table}[h]
+  \begin{tabular}{ll}
+    Band & Energy\\
+    Broad (B) & 0.3 -- 8 keV\\
+    Soft (S) & 0.3 -- 2.5 keV\\
+    Harder (H) & 2.5 -- 8 keV\\
+    Soft1 (S$_1$) & 0.3 -- 0.9 keV\\
+    Soft2 (S$_2$) & 0.9 -- 2.5 keV
+  \end{tabular}
+  \caption{\label{tab1}Chandra Energy Bands}
+\end{table}
+
+\subsection{Chandra Source Detection}
+
+After each band is extracted, we use the CIAO facility \tmtexttt{wavdetect} to
+detect point sources. \ This method uses fast wavelet transforms to correlate
+Mexican hat wavelets{\footnote{A Mexican hat distribution is the second
+derivative of a Gaussian; in the 1 dimensional case it follows
+$\frac{2}{\pi^{1 / 4}  \sqrt{3 \sigma}} \left( 1 - \frac{t^2}{\sigma^2}
+\right) e^{- \frac{t^2}{2 \sigma^2}} = \frac{\partial^2}{\partial t^2} g$ . \
+The higher dimensional Mexican hat wavelet generalizes the 1 dimensional
+second derivative to a Laplacian.}} at different scales, selected by the user,
+and associates peaks with sources. The waves we correlate have as parameters
+$\sigma \in \left\{ 1, \sqrt{2}, 2, 2 \sqrt{2}, 4, 4 \sqrt{2}, 8 \right\}$.
+
+\subsection{Source Agglomeration}\label{source_agg}
+
+After sources are detected for each chandra image, it is necessary to find
+common sources across multiple bands and images. \ We employ fast complete
+linkage agglomerative clustering, as we introduced in
+{\S}\ref{fastagglomeration}, to achieve this. \ After clustering groups no
+bigger than $3''$ apart are separated and cataloged.
+
+\section{Future Work}\label{future}
+
+\subsection{Better Chandra Source Detection}
+
+Source detection does not make use of recent innovations in the CIAO software
+suite. \ Recent versions of wavdetect use Chandra's point spread function
+(PSF) that was originally found by engineers during ground calibration. \
+Recently, CIAO can now compute the PSF for each individual image using the
+\tmtexttt{mkpsfmap} program. \ The observation-specific PSF can be used by
+\tmtexttt{wavdetect} to import source detection.
+
+\subsection{XMM Astrometry Correction}\label{astrometry}
+
+We expect that XMM and Chandra may have some discrepancies between their
+astrometry; it is necessary to introduce adjustments to these images to bring
+them into alignment. \ We hope to use the \tmtexttt{geotran} matching package
+from IRAF{\footnote{The \tmtexttt{geotran} UNIX manual page is available
+online here:
+\href{http://iraf.noao.edu/scripts/irafhelp?geotran}{http://iraf.noao.edu/scripts/irafhelp?geotran}}}.
+
+\subsection{XMM Band Extraction and Source Detection}
+
+Chandra energy levels $\eta$ may be converted to XMM-Newton energy levels
+$\xi$ using the following equation{\footnote{This equation may be determined
+by inspecting the equivalent energy levels of the two satellites listed on the
+following website:
+\href{http://heasarc.gsfc.nasa.gov/W3Browse/all/ic10xmmcxo.html}{http://heasarc.gsfc.nasa.gov/W3Browse/all/ic10xmmcxo.html}}}:
+\[ \xi \approx 0.09 \eta^2 + 1.75 \eta - .2 \]
+This means that the energy levels for the different bands are slightly altered
+from those for Chandra. \ Table \ref{tab2} summarizes these differences,
+rounded to 2 significant figures.
+
+\begin{table}[h]
+  \begin{tabular}{lll}
+    Band & Chandra Energy & XMM Energy\\
+    Broad (B) & 0.3 -- 8 keV & $0.3$ -- $8$ keV\\
+    Soft (S) & 0.3 -- 2.5 keV & $0.3$ -- 3.6 keV\\
+    Harder (H) & 2.5 -- 8 keV & 3.6 -- 8 keV\\
+    Soft1 (S$_1$) & 0.3 -- 0.9 keV & 0.3 -- 1.3 keV\\
+    Soft2 (S$_2$) & 0.9 -- 2.5 keV & 1.3 -- 3.6 keV
+  \end{tabular}
+  \caption{\label{tab2}XMM vs. Chandra Energy Bands}
+\end{table}
+
+These energy levels are used as parameters for the SAS
+\tmtexttt{edetect\_chain} script{\footnote{The SAS \tmtexttt{edetect\_chain}
+script documentation can be found here:
+\href{http://xmm.esa.int/sas/8.0.0/doc/edetect\_chain/index.html}{http://xmm.esa.int/sas/8.0.0/doc/edetect\_chain/index.html}}},
+which plays a similar r\^ole for XMM as \tmtexttt{wavdetect} plays for
+Chandra.
+
+\subsection{Source Agglomeration}
+
+After computing sources for XMM, it will be necessary to produce an
+agglomeration encompassing both Chandra and XMM detected sources. \ It is
+critical that the astrometry correction described in {\S}\ref{astrometry} be
+completed prior to this step, otherwise we run we run the risk of error being
+introduced by systematic miscalibration. \ We intend to use the same approach
+described in {\S}\ref{source_agg}.
+
+\subsection{XSPEC Flux Analysis}
+
+After groups of sources are found for each group of observations, we compute
+the flux around each source for each image, using
+\tmtexttt{xspec}{\footnote{The documentation for \tmtexttt{xspec} can be found
+here:
+\href{http://heasarc.nasa.gov/xanadu/xspec/XspecManual.pdf}{http://heasarc.nasa.gov/xanadu/xspec/XspecManual.pdf}}}.
+\ Before computing fluxes, it is necessary to find an background region for
+each source, and filter out spurious background noise. \ To find background
+regions we will use the python package \tmtexttt{kapteyn} to find encompassing
+$1''$ circles around each source. After each circle of background events is
+found, we break the background region up into quadrants, compute the average
+energy and standard deviation for each quadrant, and then throw away quadrants
+that deviate more than $3 \sigma$ from the others. \
+
+Once the background regions and calculated, \tmtexttt{xspec} will be used to
+compute the source flux by black-body spectrum fitting. \ After fluxes are
+found for each group of sources, we will attempt to fit an exponential decay
+through time to the group of fluxes. \ Following the work presented in
+{\cite{maksym_tidal_2010}}, a point source flux decaying exponentially through
+time is construed as evidence of a tidal flare.
+
+\subsection{Estimate Observed Galaxy Count}
+
+As described in the introduction, this research is intended to present a
+follow up to {\cite{maksym_constraining_2010}}. \ We intend to compute an
+estimate or lower bound on the universal frequency of tidal flares. \ We hope
+to use known estimates of galaxy counts around these clusters when possible,
+although it may be necessary to automate estimating the number of galaxies.
+
+\subsection{Hubble Optical Analysis}
+
+Once candidate flares are found, we would ideally like to identify an optical
+counter-part. \ Given optical counter-parts we could then have candidates
+objects for red-shift estimation, which would corroborate our the theory that
+the tidal flares are originating from sources within the galaxy cluster. \ As
+with the case of Chandra and XMM, it may be necessary to perform astrometry
+corrections.
+
+\section{Conclusion}
+
+While a number of hurdles to our research have been overcome, many remain. \
+Unfortunately, many of the software utilities we use have not been optimized
+for speed, rendering data analysis at the scale we wish to operate at
+difficult. \ Fortunately, our infrastructure uses open source and allows for
+ad hoc parallelism so any number of computers can be employed without needing
+to purchase proprietary software. \ We hope to have completed our survey of
+our 75 candidates soon.
+
+\bibliography{bibliography}{}
+\bibliographystyle{plain}
+
+\end{document}
