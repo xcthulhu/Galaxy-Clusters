@@ -19,9 +19,9 @@ def plot_clusters(pts,filename,markerscale,background_img=None):
 	else: m.drawmapboundary(fill_color='black')
 	m.drawparallels(np.arange(-90.,180.,15.),color='white',linewidth=.5)
 	m.drawmeridians(np.arange(0.,420.,15.),color='white',linewidth=.5)
-	for px,py,sz,name in pts:
+	for px,py,sz,name,alpha in pts:
 		x,y = m(r2d(px),r2d(py))
-		plt.plot(x,y,'*',color='yellow',markersize=markerscale*log(sz,markerscale))
+		plt.plot(x,y,'*',color='yellow',markersize=markerscale*log(sz,markerscale), alpha=alpha)
 		plt.text(x,y,name.replace("_","-").replace("#","No. "),color='red',size=2)
 	# Plot the zone of avoidance
 	m.drawparallels([ZONE_OF_AVOIDANCE,-ZONE_OF_AVOIDANCE], color='yellow', linewidth=1)
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 	else : raise "Incorrect command line arguments"
 	print "Culling clusters smaller than", SZ, "..."
 	bigguys = filter(lambda x : len(x) > SZ, cls)
-	pts = map(lambda x : list(dataToArray(x)[0]) + [len(x),x[0][7]],bigguys)
+	pts = map(lambda x : list(dataToArray(x)[0]) + [len(x),x[0][7],1],bigguys)
 	print "Making Plot..."
 	if len(sys.argv) == 5: 
 		plot_clusters(pts,sys.argv[4],float(SZ),sys.argv[2])
@@ -48,4 +48,4 @@ if __name__ == "__main__":
 	elif len(sys.argv) == 4: 
 		plot_clusters(pts,sys.argv[3],float(SZ))
 		print "Wrote:",sys.argv[3]
-	else : raise "Incorrect command line arguments"
+	else : raise "Incorrect number of command line arguments"
