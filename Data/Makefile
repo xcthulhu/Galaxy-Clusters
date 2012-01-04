@@ -5,8 +5,6 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 # Master map doesn't need to be built; it's only helpful for the presentation ~ Matt & Adi (Oct 21)
 OBJS=master-clusters master-clusters/Makefile #master-map.pdf
 
-SZ=5
-
 .PRECIOUS: catalogues/master.tsv master.tsv
 
 all: $(OBJS) 
@@ -50,8 +48,17 @@ catalogues/master.tsv :
 ESO_-_Milky_Way.jpg : 
 	wget http://upload.wikimedia.org/wikipedia/commons/6/60/ESO_-_Milky_Way.jpg -O $@
 
+%-clusters/galaxy-clusters-according-to-ned.txt: %-clusters/Makefile
+	make -C $(dir $@) $(notdir $@)
+
+%-ned.tsv: %-clusters/galaxy-clusters-according-to-ned.txt
+	ln -s $< $@
+
+%-ned-map-UNCROPPED.pdf : $(BIN)/plot_ned_clusters.py %-ned.tsv ESO_-_Milky_Way.jpg 
+	$(PYTHON) $^ $(CLSTR_SZ) $@
+
 %-map-UNCROPPED.pdf : $(BIN)/plot_clusters.py %.tsv ESO_-_Milky_Way.jpg 
-	$(PYTHON) $^ $(SZ) $@
+	$(PYTHON) $^ $(CLSTR_SZ) $@
 
 %-map.pdf : %-map-UNCROPPED.pdf
 	pdfcrop $< $@
