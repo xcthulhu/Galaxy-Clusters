@@ -25,7 +25,7 @@ nedshifts : $(NEDSHIFTS)
 	touch $@
 
 galaxy-clusters-according-to-ned.txt : $(NEDSHIFTS)
-	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh . | sort -nr > $@
+	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh $(LOWEST_Z) $(HIGHEST_Z) $(CLSTR_SZ) . | sort -nr > $@
 
 galaxy-clusters.txt : $(NEDSHIFTS)
 	$(BASEDIR)/bin/chronicle_galaxy_clusters.sh . | sort -nr > $@
