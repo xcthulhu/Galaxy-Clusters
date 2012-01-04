@@ -4,3 +4,4 @@
 .com.apple.timemachine.supported
 .fseventsd
 .nfs*
+*.tar.gz

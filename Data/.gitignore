@@ -3,3 +3,5 @@
 checkpoints
 master.tsv
 master-clusters
+master-ned.tsv
+nedshifts.tar.gz
