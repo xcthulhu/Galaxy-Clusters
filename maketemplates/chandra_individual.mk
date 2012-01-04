@@ -15,7 +15,7 @@ FULL_BAND=$(OBSID)_evt2_full_300_10000_white_band.fits
 BANDFITS=$(B_BAND) $(S_BAND) $(H_BAND) $(S1_BAND) $(S2_BAND) $(FULL_BAND)
 BANDSOURCEFITS=$(patsubst %_band.fits,sources/%_band_srcs.fits,$(BANDFITS))
 
-OBJS=$(OBSID)_evt2.tsv $(OBSID)_evt2.headers $(OBSID)_img.fits $(BANDFITS) $(BANDSOURCEFITS)
+OBJS=$(OBSID)_evt2.tsv $(OBSID)_evt2.headers img.fits $(BANDFITS) $(BANDSOURCEFITS)
 
 .PHONY : all clean reprocess
 
@@ -62,6 +62,9 @@ secondary/Makefile :
 %_img.fits : %_evt2.fits
 	$(CIAO_INIT) && dmcopy "$<[ccd_id=0:3][bin sky=2]" $@ clobber=yes
 
+img.fits : $(OBSID)_img.fits
+	ln -s $< $@
+
 # Rules for detecting sources from a given band
 $(OBSID)_evt2_%_band.fits : $(OBSID)_evt2.fits
 	$(CIAO_INIT) && dmcopy "$<[energy>$(shell echo $@ | cut -f3 -d"_"),energy<$(shell echo $@ | cut -f4 -d"_")][bin sky=2]" $@ clobber=yes
@@ -90,6 +93,6 @@ clustered_sources : $(BANDSOURCEFITS)
 	$(PYTHON) $(BIN)/cluster_fits_srcs.py $(SRC_CLSTR_RADIUS) $@ $^
 
 clean : primary/Makefile secondary/Makefile
-	rm -rf $(OBJS) sources scell band_images nbgd band_regs *$(OBSID)*.fits $(OBSID)*.reg *$(OBSID)*.header
+	rm -rf $(OBJS) sources scell band_images nbgd band_regs *$(OBSID)*.fits $(OBSID)*.reg *$(OBSID)*.header img.fits
 	$(MAKE) -C primary clean
 	$(MAKE) -C secondary clean
