@@ -4,16 +4,19 @@ GZMOS1=pps/*M1*EVL*.FTZ
 GZMOS2=pps/*M2*EVL*.FTZ
 GZPN=pps/*M2*EVL*.FTZ
 
-all : $(GZMOS1) $(GZMOS2) $(GZPN)
+all : work/Makefile odf/Makefile
 
-mos1.fits : $(GZMOS1)
-	gzcat $^ > $@
+work : 
+	mkdir $@
 
-mos2.fits : $(GZMOS2)
-	gzcat $^ > $@
+work/Makefile : work
+	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
+	echo include '$$(RAWBASEDIR)/maketemplates/XMM_work.mk' >> $@
 
-pn.fits : $(GZPN)
-	gzcat $^ > $@
+odf/Makefile :
+	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
+	echo include '$$(RAWBASEDIR)/maketemplates/XMM_odf.mk' >> $@
 
 clean :
 	rm -f *.fits
+	make -C odf clean
