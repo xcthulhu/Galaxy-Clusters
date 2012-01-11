@@ -5,6 +5,7 @@ GZMOS2=pps/*M2*EVL*.FTZ
 GZPN=pps/*M2*EVL*.FTZ
 
 all : work/Makefile odf/Makefile
+	$(MAKE) -C work
 
 work : 
 	mkdir $@
