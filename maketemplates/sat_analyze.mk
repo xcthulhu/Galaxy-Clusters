@@ -7,15 +7,19 @@ OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
 
 %-all : %
-	$(MAKE) -C $(OBSDIR) $</Makefile
-	$(MAKE) -C $< all
+	@if [ -d $(OBSDIR)/$< ] ; then \
+		echo $(MAKE) -C $(OBSDIR) $</Makefile ; \
+		$(MAKE) -C $(OBSDIR) $</Makefile ; \
+		echo $(MAKE) -C $< all ; \
+		$(MAKE) -C $< all ; \
+	fi
 
 clean :
 	rm -f $(OBSIDS)
 
 $(OBSDIR)/% :
-	$(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%,$@)
-	$(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%/Makefile,$@)
+	- $(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%,$@)
+	- $(MAKE) -C $(OBSDIR) $(patsubst $(OBSDIR)/%,%/Makefile,$@)
 
 %: $(OBSDIR)/% 
 	@if [ -d $< ] ; then \
@@ -24,4 +28,7 @@ $(OBSDIR)/% :
 		ln -fs $< $@ ; \
 	else \
 		echo ">>> NOT LINKING - $< does not exist <<<" ; \
+		echo ">>> LINKING empty directory instead <<<" ; \
+		echo ln -fs $(OBSDIR)/empty "$@" ; \
+		ln -fs $(OBSDIR)/empty "$@" ; \
 	fi
