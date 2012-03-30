@@ -2,3 +2,5 @@ Obscure, useful documentation:
 	- Step by Step XMM/SAS tutorial: http://xmm.esa.int/sas/current/documentation/threads/src_find_thread_stepbystep.shtml
 	- Energy bands conversions for Chandra v. XMM: http://heasarc.gsfc.nasa.gov/W3Browse/all/ic10xmmcxo.html
 	- Magic to get Kapteyn to work with XMM-EVT files: http://xmm.vilspa.esa.es/xmmhelp/Backgrounds?id=44331;page=9;user=guest
+	- More instructions on XMM/XSPEC chain: http://heasarc.gsfc.nasa.gov/docs/xmm/abc/node8.html
+		- You will want the RA_NOM and DEC_NOM header values in order to figure out where XMM is pointing
