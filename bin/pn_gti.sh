@@ -2,8 +2,8 @@
 
 export IN=$1
 export OUT=$2
-source $BIN/XMM_common.sh
-source $HEADAS/headas-init.sh
-source $SAS_DIR/setsas.sh
+
+BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source $BIN_DIR/XMM_common.sh
 
 tabgtigen table=$IN expression="RATE<1.0" gtiset=$OUT

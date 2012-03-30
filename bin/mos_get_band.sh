@@ -6,9 +6,8 @@ export OUT=$3
 export LOW=$4
 export HIGH=$5
 
-source $BIN/XMM_common.sh
-source $HEADAS/headas-init.sh
-source $SAS_DIR/setsas.sh
+BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source ${BIN_DIR}/XMM_common.sh
 
 evselect table=$IN:EVENTS imagebinning='binSize' \
   imageset="$OUT" withimageset=yes xcolumn='X' ycolumn='Y' \
