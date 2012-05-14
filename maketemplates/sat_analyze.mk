@@ -14,6 +14,9 @@ all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
 		$(MAKE) -C $< all ; \
 	fi
 
+%-Makefile : %
+	$(MAKE) -C $(OBSDIR) $</Makefile
+
 clean :
 	rm -f $(OBSIDS)
 

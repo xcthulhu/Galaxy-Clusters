@@ -1,40 +1,58 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
 
+ENCIRCLED_ENERGY_PRECENTAGE=90
+MAX_RADIUS=120
+STEP=10
+INNER_ANNULUS_RADIUS=120
+OUTER_ANNULUS_RADIUS=160
+
 # GZipped Event files and rules for making proper event files
 GZMOS1S=$(wildcard ../pps/*M1S*EVL*.FTZ)
 ifneq ($(GZMOS1S),)
 MOS1S=mos1s.fits
-MOS1S_SOURCE_EVT_BKGS=$(patsubst %,%_mos1s_bkg_evts.fits,$(SOURCES_COORDS))
+MOS1S_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos1s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+MOS1S_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos1s_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+MOS1S_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_mos1s_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 GZMOS1U=$(wildcard ../pps/*M1U*EVL*.FTZ)
 ifneq ($(GZMOS1U),)
 MOS1U=mos1u.fits
-MOS1U_SOURCE_EVT_BKGS=$(patsubst %,%_mos1u_bkg_evts.fits,$(SOURCE_COORDS))
+MOS1U_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos1u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+MOS1U_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos1u_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+MOS1U_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_mos1u_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 GZMOS2S=$(wildcard ../pps/*M2S*EVL*.FTZ)
 ifneq ($(GZMOS2S),)
 MOS2S=mos2s.fits
-MOS2S_SOURCE_EVT_BKGS=$(patsubst %,%_mos2s_bkg_evts.fits,$(SOURCES_COORDS))
+MOS2S_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos2s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+MOS2S_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos2s_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+MOS2S_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_mos2s_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 GZMOS2U=$(wildcard ../pps/*M2U*EVL*.FTZ)
 ifneq ($(GZMOS2U),)
 MOS2U=mos2u.fits
-MOS2U_SOURCE_EVT_BKGS=$(patsubst %,%_mos2u_bkg_evts.fits,$(SOURCE_COORDS))
+MOS2U_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos2u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+MOS2U_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos2u_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+MOS2U_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_mos2u_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 GZPNS=$(wildcard ../pps/*PNS*EVL*.FTZ)
 ifneq ($(GZPNS),)
 PNS=pns.fits
-PNS_SOURCE_EVT_BKGS=$(patsubst %,%_pns_bkg_evts.fits,$(SOURCE_COORDS))
+PNS_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/pns_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+PNS_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/pns_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+PNS_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_pns_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 GZPNU=$(wildcard ../pps/*PNU*EVL*.FTZ)
 ifneq ($(GZPNU),)
 PNU=pnu.fits
-PNU_SOURCE_EVT_BKGS=$(patsubst %,%_pnu_bkg_evts.fits,$(SOURCE_COORDS))
+PNU_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/pnu_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
+PNU_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/pnu_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
+PNU_SOURCE_EVT_BKGS=$(patsubst %,sources/bkgs/%_pnu_bkg_evts.fits,$(SOURCES_COORDS))
 endif
 
 # GZipped Satellite Attitude file
@@ -48,6 +66,16 @@ endif
 LIGHT_CURVES = $(EVT_FILES:.fits=_lightc.fits)
 GTI_FILES = $(EVT_FILES:.fits=_gti.fits)
 FILT_EVT_FILES = $(EVT_FILES:.fits=_filt.fits)
+DS9_IMG_FILES = $(EVT_FILES:.fits=_ds9_img.fits)
+DS9_IMG_PDFS = $(EVT_FILES:.fits=_ds9_img.pdf)
+
+# Encircled energy summary targets
+ENCIRCLED_ENERGY_SUMMARIES=$(MOS1S_ENCIRCLED_ENERGY_SUMMARY) \
+			   $(MOS1U_ENCIRCLED_ENERGY_SUMMARY) \
+			   $(MOS2S_ENCIRCLED_ENERGY_SUMMARY) \
+			   $(MOS2U_ENCIRCLED_ENERGY_SUMMARY) \
+			   $(PNS_ENCIRCLED_ENERGY_SUMMARY) \
+			   $(PNU_ENCIRCLED_ENERGY_SUMMARY)
 
 # Determine the ranges for various bands
 BOT=200
@@ -75,24 +103,89 @@ ALL_NAMES=$(B1_NAME) $(B2_NAME) $(B3_NAME) $(B4_NAME) $(B5_NAME) $(FULL_NAME)
 
 SOURCES=$(EVT_FILES:.fits=_emllist.fits)
 
+
 ifneq ($(SOURCES),)
 SOURCES_TXT=sources.txt
 SOURCES_COORDS=$(shell test -e sources.txt && sed -e 's/ \t/_/g' sources.txt)
 endif
 
 SOURCE_EVT_BKGS=$(MOS1S_SOURCE_EVT_BKGS) $(MOS1U_SOURCE_EVT_BKGS) $(MOS2S_SOURCE_EVT_BKGS) $(MOS2U_SOURCE_EVT_BKGS) $(PNS_SOURCE_EVT_BKGS) $(PNU_SOURCE_EVT_BKGS)
+SOURCE_EVT_BKGS_PIS=$(patsubst sources/bkgs/%_bkg_evts.fits, sources/PI/%_bkg_evts_pi.fits, $(SOURCE_EVT_BKGS))
 
 .PRECIOUS : ccf.cif $(EVT_FILES) $(LIGHT_CURVES) $(GTI_FILES) $(ALL_BANDS) $(ALL_NAMES) $(SOURCES) sources.txt
-.SECONDARY : $(ALL_BANDS) $(SOURCES) $(ALL_NAMES)
+#.SECONDARY : $(ALL_BANDS) $(SOURCES) $(ALL_NAMES)
+.SECONDARY : 
 .PHONY: all lightcurves gti source_background_evts 
 
-all : ccf.cif $(GTI_FILES) $(ALL_BANDS) $(SOURCES) $(ALL_NAMES) $(EVT_FILES) $(SOURCES_TXT) $(FILT_EVT_FILES) source_background_evts $(SOURCE_EVT_BKGS)
+all : ccf.cif $(GTI_FILES) $(ALL_BANDS) $(ALL_NAMES) $(EVT_FILES) $(SOURCES_TXT) $(FILT_EVT_FILES)
+
+test :
+	echo $(SOURCES)
 
 lightcurves: $(LIGHT_CURVES)
 
 gti : $(GTI_FILES) 
 
-source_background_evts : $(SOURCES_TXT) $(SOURCE_EVT_BKGS)
+images : $(DS9_IMG_PDFS)
+
+source_background_evts : $(SOURCES_TXT)
+
+source_background_evts_pi : $(SOURCES_TXT)
+
+encircled_energies : $(PNS_ENCIRCLED_ENERGY_SUMMARY) #$(ENCIRCLED_ENERGY_SUMMARIES)
+
+# Compute encircled energy
+sources/encircled_energies/mos1s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : mos1s_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+sources/encircled_energies/mos1u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : mos1u_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+sources/encircled_energies/mos2s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : mos2s_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+sources/encircled_energies/mos2u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : mos2u_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+sources/encircled_energies/pns_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : pns_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+sources/encircled_energies/pnu_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt : pnu_ds9_img.fits
+	$(BIN)/encircled_energy_scan.sh $< $(shell echo $@ | sed -e 's/_/ /g' | cut -d' ' -f4,5) $(STEP) $(MAX_RADIUS) $(INNER_ANNULUS_RADIUS) $(OUTER_ANNULUS_RADIUS) $@
+
+#sources/encircled_energies/%_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt : %_ds9_img.fits sources.txt 
+#	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $(dir $@)/$<* | tee $@
+
+ifneq ($(MOS1S_ENCIRCLED_ENERGY_SUMMARY),)
+$(MOS1S_ENCIRCLED_ENERGY_SUMMARY) : $(MOS1S_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
+ifneq ($(MOS1U_ENCIRCLED_ENERGY_SUMMARY),)
+$(MOS1U_ENCIRCLED_ENERGY_SUMMARY) : $(MOS1U_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
+ifneq ($(MOS2S_ENCIRCLED_ENERGY_SUMMARY),)
+$(MOS2S_ENCIRCLED_ENERGY_SUMMARY) : $(MOS2S_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
+ifneq ($(MOS2U_ENCIRCLED_ENERGY_SUMMARY),)
+$(MOS2U_ENCIRCLED_ENERGY_SUMMARY) : $(MOS2U_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
+ifneq ($(PNS_ENCIRCLED_ENERGY_SUMMARY),)
+$(PNS_ENCIRCLED_ENERGY_SUMMARY) : $(PNS_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
+ifneq ($(PNU_ENCIRCLED_ENERGY_SUMMARY),)
+$(PNU_ENCIRCLED_ENERGY_SUMMARY)  : $(PNU_ENCIRCLED_ENERGIES)
+	rm -f $@
+	$(BIN)/est_encircle_energy.py $(ENCIRCLED_ENERGY_PRECENTAGE) $^ | tee $@
+endif
 
 ccf.cif :
 	make -C ../odf untar
@@ -127,23 +220,59 @@ pns.fits.gz : $(GZPNS)
 pnu.fits.gz : $(GZPNU)
 	cp -f $^ $@
 
-%_mos1s_bkg_evts.fits : mos1s.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+%_ds9_img.pdf : %_ds9_img.fits
+	$(BIN)/fits_show.py $< $@
 
-%_mos2u_bkg_evts.fits : mos2u.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+%_ds9_img.fits : %.fits
+	$(BIN)/mk_XMM_image.sh $< $@
 
-%_mos2s_bkg_evts.fits : mos2s.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+# Compute the backgrounds for all of the events for all of the detectors
 
-%_mos2u_bkg_evts.fits : mos2u.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+sources/bkgs :
+	mkdir -p $@
 
-%_pns_bkg_evts.fits : pns.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+sources/bkgs/%_mos1s_bkg_evts.fits : mos1s.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
 
-%_pnu_bkg_evts.fits : pnu.fits
-	$(BIN)/mk_XMM_background.py $< $(shell echo $@ | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+sources/bkgs/%_mos1u_bkg_evts.fits : mos1u.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+
+sources/bkgs/%_mos2s_bkg_evts.fits : mos2s.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+
+sources/bkgs/%_mos2u_bkg_evts.fits : mos2u.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+
+sources/bkgs/%_pns_bkg_evts.fits : pns.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+
+sources/bkgs/%_pnu_bkg_evts.fits : pnu.fits sources/bkgs
+	$(BIN)/mk_XMM_background.py $< $(shell echo $(notdir $@) | sed -e 's/_/ /g' | cut -f1,2 -d" ") 130 160 $@
+
+# Compute the PIs for all of the background events
+
+sources/PI :
+	mkdir -p $@
+
+sources/PI/%_mos1s_bkg_evts_pi.fits : sources/bkgs/%_mos1s_bkg_evts.fits sources/PI
+	$(BIN)/XMM_mos_bckg_pi.sh $< $@
+
+sources/PI/%_mos1u_bkg_evts_pi.fits : sources/bkgs/%_mos1u_bkg_evts.fits sources/PI
+	$(BIN)/XMM_mos_bckg_pi.sh $< $@
+
+sources/PI/%_mos2s_bkg_evts_pi.fits : sources/bkgs/%_mos2s_bkg_evts.fits sources/PI
+	$(BIN)/XMM_mos_bckg_pi.sh $< $@
+
+sources/PI/%_mos2u_bkg_evts_pi.fits : sources/bkgs/%_mos2u_bkg_evts.fits sources/PI
+	$(BIN)/XMM_mos_bckg_pi.sh $< $@
+
+sources/PI/%_pns_bkg_evts_pi.fits : sources/bkgs/%_pns_bkg_evts.fits sources/PI
+	$(BIN)/XMM_pn_bckg_pi.sh $< $@
+
+sources/PI/%_pnu_bkg_evts_pi.fits : sources/bkgs/%_pnu_bkg_evts.fits sources/PI
+	$(BIN)/XMM_pn_bckg_pi.sh $< $@
+
+# Compute light curves for each detector
 
 mos%_lightc.fits : mos%.fits.gz ccf.cif
 	$(BIN)/mos_lightc.sh $< $@
@@ -215,17 +344,19 @@ pn%_full_$(BOT)_$(TOP)_white_band_img.fits: pn%.fits.gz pn%_gti.fits
 	$(BIN)/pn_get_band.sh $^ $@ $(shell echo $@ | sed -e 's/_/ /g' | cut -f3,4 -d" ")
 
 mos1%_emllist.fits: mos1%.fits.gz attds.fits.gz mos1%_b1_img.fits mos1%_b2_img.fits mos1%_b3_img.fits mos1%_b4_img.fits mos1%_b5_img.fits
-	$(BIN)/mos1_source_detect.sh $@ $^
+	rm -f *$@ *$(shell echo $@ | sed -e 's/mos1/mos2/')
+	-$(BIN)/mos1_source_detect.sh $@ $^
 
 mos2%_emllist.fits: mos2%.fits.gz attds.fits.gz mos2%_b1_img.fits mos2%_b2_img.fits mos2%_b3_img.fits mos2%_b4_img.fits mos2%_b5_img.fits
-	$(BIN)/mos2_source_detect.sh $@ $^
+	rm -f *$@ *$(shell echo $@ | sed -e 's/mos2/mos1/')
+	-$(BIN)/mos2_source_detect.sh $@ $^
 
 pn%_emllist.fits: pn%.fits.gz attds.fits.gz pn%_b1_img.fits pn%_b2_img.fits pn%_b3_img.fits pn%_b4_img.fits pn%_b5_img.fits
+	rm -f *$@
 	$(BIN)/pn_source_detect.sh $@ $^
 
 sources.txt: $(SOURCES)
-	$(BIN)/dump_XMM_sourcelist.py $^ | uniq > $@
-	make source_background_evts
+	$(PYTHON) $(BIN)/dump_XMM_sourcelist.py $^ | uniq > $@
 
 clean :
 	rm -f *.txt *.fits ccf.cif *.pdf *.gz *.grp

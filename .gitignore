@@ -5,3 +5,6 @@
 .fseventsd
 .nfs*
 *.tar.gz
+ciao-4.4
+venv
+sas

@@ -2,6 +2,7 @@
 import numpy as np
 from collections import defaultdict
 from itertools import combinations, product
+from decimal import getcontext, Decimal
 
 def get_points(m) : 
 	"""get_points(m)
@@ -74,5 +75,4 @@ def correspondents(mref,mobs,ndigits=1,dist_ref=euclidean,dist_obs=euclidean,thr
 				   if forth[back[pobs]] : del forth[back[pobs]]
 				   forth[pref] = pobs
 				   back[pobs] = pref
-	print list(forth.iteritems())
 	return filter(lambda (x,y) : x and y , forth.iteritems())

@@ -6,7 +6,7 @@ for i in `find $4 -iname "nedshifts.tsv"` ; do
 	if [ -n "${NED}" ] ; then 
 		IDIRNAME=`ruby -e "require 'pathname' ; puts Pathname.new(\"$i\").dirname.cleanpath"`
 		OBS="${IDIRNAME}/${IDIRNAME}.tsv"
-		IDCOUNT=`wc -l ${OBS} | cut -f1 -d" "`
+		IDCOUNT=`wc -l ${OBS} | sed -e 's/^ *//' | cut -f1 -d" "`
 		if [ ${IDCOUNT} -ge $3 ] ; then
 			echo ${IDCOUNT} "	" $OBS "	" `head -2 ${OBS} | cut -f 8` "	" $NED
 		fi

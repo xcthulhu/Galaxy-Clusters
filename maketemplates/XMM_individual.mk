@@ -20,4 +20,5 @@ odf/Makefile :
 
 clean :
 	rm -f *.fits
+	rm -rf work
 	make -C odf clean
