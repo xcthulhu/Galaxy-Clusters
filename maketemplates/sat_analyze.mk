@@ -4,7 +4,15 @@ OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 .PHONY : all %-all clean
 .PRECIOUS : $(OBSDIR) $(OBSDIR)/%
 
-all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
+all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS)) sources.txt
+
+repro : $(OBSIDS) $(patsubst %,%-Makefile,$(OBSIDS))
+	@for o in $(OBSIDS) ; do \
+		if [ -d $(OBSDIR)/$$o ] ; then \
+			echo $(MAKE) -C $$o repro ; \
+			$(MAKE) -C $$o repro ; \
+		fi ; \
+	done
 
 %-all : %
 	@if [ -d $(OBSDIR)/$< ] ; then \
@@ -13,6 +21,13 @@ all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS))
 		echo $(MAKE) -C $< all ; \
 		$(MAKE) -C $< all ; \
 	fi
+
+sources.txt : $(patsubst %,%-sources,$(OBSIDS))
+	cat $(patsubst %,%/work/sources.txt,$(OBSIDS)) > $@
+
+%-sources : % 
+	make $<-Makefile
+	make -C $< work/sources.txt
 
 %-Makefile : %
 	$(MAKE) -C $(OBSDIR) $</Makefile

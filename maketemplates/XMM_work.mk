@@ -9,6 +9,7 @@ OUTER_ANNULUS_RADIUS=160
 # GZipped Event files and rules for making proper event files
 GZMOS1S=$(wildcard ../pps/*M1S*EVL*.FTZ)
 ifneq ($(GZMOS1S),)
+GZMOS1S=$(shell ls ../pps/*M1S*EVL*.FTZ | head -1)
 MOS1S=mos1s.fits
 MOS1S_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos1s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 MOS1S_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos1s_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -17,6 +18,7 @@ endif
 
 GZMOS1U=$(wildcard ../pps/*M1U*EVL*.FTZ)
 ifneq ($(GZMOS1U),)
+GZMOS1U=$(shell ls ../pps/*M1U*EVL*.FTZ | head -1)
 MOS1U=mos1u.fits
 MOS1U_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos1u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 MOS1U_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos1u_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -25,6 +27,7 @@ endif
 
 GZMOS2S=$(wildcard ../pps/*M2S*EVL*.FTZ)
 ifneq ($(GZMOS2S),)
+GZMOS2S=$(shell ls ../pps/*M2S*EVL*.FTZ | head -1)
 MOS2S=mos2s.fits
 MOS2S_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos2s_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 MOS2S_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos2s_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -33,6 +36,7 @@ endif
 
 GZMOS2U=$(wildcard ../pps/*M2U*EVL*.FTZ)
 ifneq ($(GZMOS2U),)
+GZMOS2U=$(shell ls ../pps/*M2U*EVL*.FTZ | head -1)
 MOS2U=mos2u.fits
 MOS2U_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/mos2u_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 MOS2U_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/mos2u_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -41,6 +45,7 @@ endif
 
 GZPNS=$(wildcard ../pps/*PNS*EVL*.FTZ)
 ifneq ($(GZPNS),)
+GZPNS=$(shell ls ../pps/*PNS*EVL*.FTZ | head -1)
 PNS=pns.fits
 PNS_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/pns_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 PNS_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/pns_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -49,6 +54,7 @@ endif
 
 GZPNU=$(wildcard ../pps/*PNU*EVL*.FTZ)
 ifneq ($(GZPNU),)
+GZPNU=$(shell ls ../pps/*PNU*EVL*.FTZ | head -1)
 PNU=pnu.fits
 PNU_ENCIRCLED_ENERGIES=$(patsubst %,sources/encircled_energies/pnu_energy_%_$(INNER_ANNULUS_RADIUS)_$(OUTER_ANNULUS_RADIUS).txt,$(SOURCES_COORDS))
 PNU_ENCIRCLED_ENERGY_SUMMARY=sources/encircled_energies/pnu_$(ENCIRCLED_ENERGY_PRECENTAGE)_percent_energy_source_radii.txt
@@ -112,8 +118,6 @@ endif
 SOURCE_EVT_BKGS=$(MOS1S_SOURCE_EVT_BKGS) $(MOS1U_SOURCE_EVT_BKGS) $(MOS2S_SOURCE_EVT_BKGS) $(MOS2U_SOURCE_EVT_BKGS) $(PNS_SOURCE_EVT_BKGS) $(PNU_SOURCE_EVT_BKGS)
 SOURCE_EVT_BKGS_PIS=$(patsubst sources/bkgs/%_bkg_evts.fits, sources/PI/%_bkg_evts_pi.fits, $(SOURCE_EVT_BKGS))
 
-.PRECIOUS : ccf.cif $(EVT_FILES) $(LIGHT_CURVES) $(GTI_FILES) $(ALL_BANDS) $(ALL_NAMES) $(SOURCES) sources.txt
-#.SECONDARY : $(ALL_BANDS) $(SOURCES) $(ALL_NAMES)
 .SECONDARY : 
 .PHONY: all lightcurves gti source_background_evts 
 

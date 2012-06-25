@@ -16,13 +16,26 @@ endif
 
 .PRECIOUS: chandra XMM $(BASEDIR)/Data/nedshifts $(RAWBASEDIR)/Data/nedshifts/%.tsv 
 
-all : $(CHANDRA_MAKE) $(XMM_MAKE) nedshifts.tsv
+all : $(CHANDRA_MAKE) $(XMM_MAKE) nedshifts.tsv sources.txt
+
+ifneq ($(strip $(CHANDRA_OBSIDS)),)
+repro : chandra/Makefile
+	make -C chandra repro
+else
+repro : 
+endif
 
 chandra : 
 	mkdir $@
 
 XMM : 
 	mkdir $@
+
+sources.txt : chandra/sources.txt XMM/sources.txt
+	cat $^ > $@
+
+%/sources.txt : %
+	make -C $< sources.txt
 
 # Rule for making $(NEDARCHIVE) ; "$(NEDARCHIVE):" doesn't work
 $(NEDARCHIVE) :

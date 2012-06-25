@@ -17,7 +17,8 @@ BANDFITS=$(B_BAND) $(S_BAND) $(H_BAND) $(S1_BAND) $(S2_BAND) $(FULL_BAND)
 BANDSOURCEFITS=$(patsubst %_band.fits,sources/%_band_srcs.fits,$(BANDFITS))
 BANDPSF=$(BANDFITS:.fits=_psf.fits)
 
-all : sources.txt
+all : 
+	- make sources.txt
 
 # Reprocessing nonsense :(
 
@@ -26,6 +27,12 @@ decompress :
 		if [ -f $$i ] ; then \
 			echo gzcat $$i \> `basename $$i | sed -e 's/.gz//'`; \
 			gzcat $$i > `basename $$i | sed -e 's/.gz//'`; \
+		fi \
+	done
+	@for i in ../primary/*.fits ../secondary/*.fits ; do \
+		if [ -f $$i ] ; then \
+			echo cp $$i `basename $$i`; \
+			cp $$i `basename $$i`; \
 		fi \
 	done
 	touch $@
@@ -37,18 +44,28 @@ ephem : ../secondary/ephem
 	ln -s $< $@
 
 repro : decompress aspect ephem
-	$(CIAO_INIT) && chandra_repro indir=. outdir=. clobber=yes
+	@for i in *repro*evt2.fits ; do \
+		if [ -f $$i ] ; then \
+			echo "Repro evt2 file already exists as $$i, nothing to do" ; \
+		else \
+			$(CIAO_INIT) && chandra_repro indir=. outdir=. clobber=yes ; \
+		fi ; \
+		break ; \
+	done
 	touch $@
 
 evt2.fits : 
 	make repro
-	@if [ -f $(shell ls -t *repro*evt2.fits | head -1) ] ; then \
-                echo ">>> Linking" $(shell ls -t *repro*evt2.fits | head -1) to $@ "<<<" ; \
-                echo ln -sf $(shell ls -t *repro*evt2.fits | head -1) $@ ; \
-                ln -sf $(shell ls -t *repro*evt2.fits | head -1) $@ ; \
-        else \
-                echo "COULD NOT LINK ANYTHING TO $@ !" ; \
-        fi	
+	@for i in *repro*evt2.fits ; do \
+		if [ -f $$i ] ; then \
+			echo ">>> Linking" $$i to $@ "<<<" ; \
+			echo ln -sf $$i $@ ; \
+			ln -sf $$i $@ ; \
+		else \
+			echo "COULD NOT LINK ANYTHING TO $@ !" ; \
+		fi ; \
+		break ; \
+	done
 	[ -h $@ ] && touch $@
 
 $(OBSID)_evt2.fits : evt2.fits
@@ -87,7 +104,7 @@ band_regs :
 sources/%_band_srcs.fits : %_band.fits %_band_psf.fits
 	$(MAKE) sources scell band_images nbgd band_regs
 	rm -f /tmp/$(shell echo $< | sed -e 's/.fits//')*
-	$(CIAO_INIT) && wavdetect infile=$< outfile=$@ scellfile=scell/scell-$< imagefile=band_images/imagefile-$< defnbkgfile=nbgd/nbgd-$< regfile=band_regs/$<.reg scales="1.0 1.4 2.0 2.8 4.0 5.6 8" clobber=yes psffile=$(patsubst %.fits, %_psf.fits, $<)
+	$(CIAO_INIT) && wavdetect infile=$< outfile=$@ scellfile=scell/scell-$< imagefile=band_images/imagefile-$< defnbkgfile=nbgd/nbgd-$< regfile=band_regs/$<.reg scales="1.0 1.4 2.0 2.8 4.0 5.6 8" psffile=$(patsubst %.fits,%_psf.fits, $<) clobber=yes
 
 sources.txt : $(BANDSOURCEFITS)
 	$(PYTHON) $(BIN)/dump_fits_srcs.py $^ > $@

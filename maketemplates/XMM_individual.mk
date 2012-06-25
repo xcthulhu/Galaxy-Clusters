@@ -14,6 +14,9 @@ work/Makefile : work
 	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
 	echo include '$$(RAWBASEDIR)/maketemplates/XMM_work.mk' >> $@
 
+work/sources.txt : work/Makefile
+	make -C work sources.txt
+
 odf/Makefile :
 	echo RAWBASEDIR=$(RAWBASEDIR)/.. > $@
 	echo include '$$(RAWBASEDIR)/maketemplates/XMM_odf.mk' >> $@
