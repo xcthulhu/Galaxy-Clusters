@@ -2,8 +2,7 @@ RAWBASEDIR=..
 # Declares, $(PYTHON) and $(BIN)
 include $(RAWBASEDIR)/maketemplates/master.mk
 
-# Master map doesn't need to be built; it's only helpful for the presentation ~ Matt & Adi (Oct 21)
-OBJS=master-clusters master-clusters/Makefile #master-map.pdf
+OBJS=master-clusters master-clusters/Makefile master-clusters/galaxy-clusters-according-to-ned.txt master-ned-map.pdf
 
 .PRECIOUS: catalogues/master.tsv master.tsv
 
