@@ -1,8 +1,9 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
-MAKES = $(shell echo $(patsubst %,%/Makefile,$(wildcard *_*_*_*_*)))
-NEDSHIFTS = $(shell echo $(patsubst %,%/nedshifts.tsv,$(wildcard *_*_*_*_*)))
-XMM_MAKES = $(shell echo $(patsubst %,%/XMM/Makefile,$(wildcard *_*_*_*_*)))
-CHANDRA_MAKES = $(shell echo $(patsubst %,%/chandra/Makefile,$(wildcard *_*_*_*_*)))
+CLSTS := $(wildcard *_*_*_*_*)
+MAKES = $(shell echo $(patsubst %,%/Makefile,$(CLSTS)))
+NEDSHIFTS = $(shell echo $(patsubst %,%/nedshifts.tsv,$(CLSTS)))
+XMM_MAKES = $(shell echo $(patsubst %,%/XMM/Makefile,$(CLSTS)))
+CHANDRA_MAKES = $(shell echo $(patsubst %,%/chandra/Makefile,$(CLSTS)))
 
 .PHONY : all makes nedshifts analyze clean
 
