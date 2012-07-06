@@ -3,6 +3,7 @@ OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 
 .PHONY : all %-all clean
 .PRECIOUS : $(OBSDIR) $(OBSDIR)/%
+.DELETE_ON_ERROR : sources.txt
 
 all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS)) sources.txt
 

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+function cleanpath() {
+        ruby -e "require 'pathname' ; puts Pathname.new(\"$1\").cleanpath"
+}
+
+CIAO_BIN=$(cleanpath $(dirname ${BASH_SOURCE[0]})"/../ciao-4.4/bin")
+source ${CIAO_BIN}/ciao.bash -o -q
+${CIAO_BIN}/python $*

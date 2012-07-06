@@ -2,6 +2,7 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 .SECONDARY : 
 .PHONY : all clean reprocess
 OBSID=$(shell basename $(dir $(shell pwd)))
+.DELETE_ON_ERROR : repro decompress
 
 # Designations defined in Kim et al., http://arxiv.org/pdf/astro-ph/0611840
 # This obscure webpage says how to translate between XMM and chandra:
@@ -25,8 +26,8 @@ all :
 decompress :
 	@for i in ../primary/*.fits.gz ../secondary/*.fits.gz ; do \
 		if [ -f $$i ] ; then \
-			echo gzcat $$i \> `basename $$i | sed -e 's/.gz//'`; \
-			gzcat $$i > `basename $$i | sed -e 's/.gz//'`; \
+			echo zcat $$i \> `basename $$i | sed -e 's/.gz//'`; \
+			zcat $$i > `basename $$i | sed -e 's/.gz//'`; \
 		fi \
 	done
 	@for i in ../primary/*.fits ../secondary/*.fits ; do \
@@ -44,15 +45,7 @@ ephem : ../secondary/ephem
 	ln -s $< $@
 
 repro : decompress aspect ephem
-	@for i in *repro*evt2.fits ; do \
-		if [ -f $$i ] ; then \
-			echo "Repro evt2 file already exists as $$i, nothing to do" ; \
-		else \
-			$(CIAO_INIT) && chandra_repro indir=. outdir=. clobber=yes ; \
-		fi ; \
-		break ; \
-	done
-	touch $@
+	$(CIAO_PYTHON) $(CHANDRA_REPRO) indir=. outdir=. clobber=yes && touch $@
 
 evt2.fits : 
 	make repro

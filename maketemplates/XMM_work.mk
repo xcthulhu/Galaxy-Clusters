@@ -204,10 +204,10 @@ mos1s.fits.gz : $(GZMOS1S)
 	cp -f $^ $@
 
 mos%.fits : mos%.fits.gz 
-	gzcat $< > $@
+	zcat $< > $@
 
 pn%.fits : pn%.fits.gz 
-	gzcat $< > $@
+	zcat $< > $@
 
 mos1u.fits.gz : $(GZMOS1U)
 	cp -f $^ $@
