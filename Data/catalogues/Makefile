@@ -1,4 +1,5 @@
 RAWBASEDIR=../..
+.DELETE_ON_ERROR : chandra.tsv XMM.tsv ROSAT.tsv master.tsv
 include $(RAWBASEDIR)/maketemplates/master.mk
 
 all : master.tsv
