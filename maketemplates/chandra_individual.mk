@@ -6,10 +6,7 @@ all :
 	- make sources.txt
 
 sources.txt : work/sources.txt
-	@ if [ -f $< ] ; then  \
-		echo ln -s $< $@ ; \
-		ln -s $< $@ ; \
-	fi
+	[ -f $< ] && ln -s $< $@
 
 # Rules for creating & linking the evt2 file
 work/sources.txt : work/Makefile

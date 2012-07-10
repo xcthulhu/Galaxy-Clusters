@@ -1,4 +1,5 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
+.PHONY : all
 
 all : 
 

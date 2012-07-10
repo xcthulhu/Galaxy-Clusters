@@ -193,7 +193,6 @@ endif
 
 ccf.cif :
 	make -C ../odf untar
-	echo $(BIN)/cifbuild.sh
 	$(BIN)/cifbuild.sh
 	make -C ../odf odfingest
 
