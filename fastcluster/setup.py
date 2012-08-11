@@ -3,7 +3,7 @@
 '''
   fastcluster: Fast hierarchical clustering routines for R and Python
 
-  Copyright © 2011 Daniel Müllner
+  Copyright © 2011Daniel Müllner
   <http://math.stanford.edu/~muellner>
 '''
 #import distutils.debug
@@ -31,7 +31,7 @@ The interface is very similar to MATLAB's Statistics Toolbox API to make code ea
                   # (no -pedantic -Wextra)
      )],
       keywords=['dendrogram', 'linkage', 'cluster', 'agglomerative', 'hierarchical', 'hierarchy', 'ward'],
-      author=u"Daniel Müllner",
+      author="Daniel Muellner",
       author_email="fastcluster@math.stanford.edu",
       license="GPLv3 <http://www.gnu.org/licenses/gpl.html>",
       classifiers = ["Topic :: Scientific/Engineering :: Information Analysis",
