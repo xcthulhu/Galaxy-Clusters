@@ -32,7 +32,7 @@ XMM :
 	mkdir $@
 
 sources.txt : chandra/sources.txt XMM/sources.txt
-	cat $^ > $@
+	cat $^ | sort | uniq > $@
 
 %/sources.txt : %
 	make -C $< sources.txt
