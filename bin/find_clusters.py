@@ -2,6 +2,7 @@
 import csv,sys,os,cPickle,ephem
 import numpy as np
 from math import sqrt,sin,cos,atan2,pi,acos
+from functools import partial
 from fastcluster import *
 from scipy.cluster.hierarchy import to_tree
 if sys.version_info < (2, 4, 0): 
@@ -24,12 +25,12 @@ def Vincenty((phi1,lam1),(phi2,lam2)) :
                      sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(dlam))
 
 # Converts a line of data into a pair of coordinates
-def lineToPair(l) : 
-	return GalToRad(l[1],l[2])
+def lineToPair(l,cols=(1,2)) : 
+	return GalToRad(l[cols[0]],l[cols[1]])
 
 # Converts derived data from a tsv to an array of (unique) vectors
-def dataToArray(data) :
-	s = set(map(lineToPair,data))
+def dataToArray(data,cols) :
+	s = set(map(partial(lineToPair,cols=cols),data))
 	return np.array(list(s))
 
 # Computes the distance matrix from an array of two vectors given a distance function
@@ -74,7 +75,7 @@ def modData(data, part, memF) :
 	
 # Clusters the entries in a file
 # Default is pretty wide
-def mkClusters(filename,radius=RADIUS,cpDir="checkpoints") :
+def mkClusters(filename,radius=RADIUS,cpDir="checkpoints",cols=(1,2)) :
 	# radius given in arcmins
 	f = open(filename)
 	data = list(csv.reader(f, delimiter='\t'))
@@ -89,7 +90,7 @@ def mkClusters(filename,radius=RADIUS,cpDir="checkpoints") :
 		vecs_file.close()
 	else:
 		print "Computing vectors..."
-		vecs = dataToArray(data)
+		vecs = dataToArray(data,cols=cols)
 		print "Saving vectors to file..."
 		vecs_file = open(cpDir + "/" + filename + ".vec", 'w')
 		cPickle.dump(vecs, vecs_file)
@@ -129,7 +130,7 @@ def mkClusters(filename,radius=RADIUS,cpDir="checkpoints") :
 		cluster_file.close()
 	else :
 		print "Computing individual clusters..."
-		memF = lambda x,p : any(map(lambda y : lineToPair(x) == (y[0],y[1]),p))
+		memF = lambda x,p : any(map(lambda y : lineToPair(x,cols=cols) == (y[0],y[1]),p))
 		myCluster = modData(data, part, memF)
 		cluster_file = open(cpDir + "/" + filename + ("%f.cls" % radius), 'w')
 		print "Saving individual clusters to file..."
