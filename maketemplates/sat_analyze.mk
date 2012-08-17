@@ -3,7 +3,7 @@ OBSDIR=$(RAWBASEDIR)/Data/$(SATELLITE)-obs
 
 .PHONY : all %-all clean
 .PRECIOUS : $(OBSDIR) $(OBSDIR)/%
-.DELETE_ON_ERROR : sources.txt
+.DELETE_ON_ERROR : sources.txt download $(OBSID)
 
 all : $(OBSIDS) $(patsubst %,%-all,$(OBSIDS)) sources.txt
 
@@ -17,7 +17,10 @@ sources.txt : $(patsubst %,%/sources.txt,$(OBSIDS))
 	$(MAKE) -C $(OBSDIR) $</Makefile
 
 clean :
-	rm -f $(OBSIDS)
+	rm -f $(OBSIDS) download sources.txt
+
+download : $(OBSIDS)
+	touch $@
 
 $(OBSIDS): 
 	- $(MAKE) -C $(OBSDIR) $@

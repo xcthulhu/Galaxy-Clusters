@@ -6,10 +6,12 @@ XMM_OBSIDS=$(shell grep XMM $(notdir $(shell pwd)).tsv | cut -f 4)
 
 ifneq ($(strip $(CHANDRA_OBSIDS)),)
 	CHANDRA_MAKE=chandra/Makefile
+	CHANDRA_DOWNLOAD=chandra/download
 endif
 
 ifneq ($(strip $(XMM_OBSIDS)),)
 	XMM_MAKE=XMM/Makefile
+	XMM_DOWNLOAD=XMM/download
 endif
 
 .PHONY: all clean
@@ -34,12 +36,18 @@ XMM :
 sources.txt : chandra/sources.txt XMM/sources.txt
 	cat $^ | sort | uniq > $@
 
-%/sources.txt : %
+%/sources.txt : % %/Makefile
 	make -C $< sources.txt
 
 # Rule for making $(NEDARCHIVE) ; "$(NEDARCHIVE):" doesn't work
 $(NEDARCHIVE) :
 	$(MAKE) -C $(dir $@) $(notdir $@)
+
+download : $(CHANDRA_DOWNLOAD) $(XMM_DOWNLOAD)
+	touch $@
+
+%/download : % %/Makefile
+	make -C $< download
 
 nedshifts.tsv : $(NEDARCHIVE)
 	ln -sf $< $@
