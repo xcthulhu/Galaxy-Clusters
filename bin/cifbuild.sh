@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 
 BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
 source ${BIN_DIR}/XMM_common.sh

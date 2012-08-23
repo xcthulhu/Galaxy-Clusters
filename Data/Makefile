@@ -2,9 +2,9 @@ RAWBASEDIR=..
 # Declares, $(PYTHON) and $(BIN)
 include $(RAWBASEDIR)/maketemplates/master.mk
 
-OBJS=master-clusters master-clusters/Makefile master-clusters/galaxy-clusters-according-to-ned.txt master-ned-map.pdf
+OBJS=master-clusters master-clusters/Makefile master-clusters/galaxy-clusters-according-to-ned.txt master-ned-map.pdf science-master-clusters/Makefile
 
-.PRECIOUS: catalogues/master.tsv master.tsv
+.PRECIOUS: $(OBJS)
 
 all: $(OBJS) 
 
@@ -32,6 +32,14 @@ master.tsv : catalogues/master.tsv
 
 catalogues/master.tsv :
 	make -C catalogues master.tsv
+
+science-%-clusters : %-clusters/galaxy-clusters-according-to-ned.txt
+	mkdir $@
+	for i in `cat $< | cut -f2 | cut -d'/' -f1` ; do \
+		echo ln -s ../$(patsubst %/,%,$(dir $<))/$$i $@/$$i ; \
+		ln -s ../$(patsubst %/,%,$(dir $<))/$$i $@/$$i ; \
+	done
+	ln -s ../$< $@/$(notdir $<)
 
 %-clusters : %.tsv $(BIN)/make_catalogue.py
 	# Cluster the observations

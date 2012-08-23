@@ -40,7 +40,8 @@ galaxy-clusters.txt : nedshifts
 	$(BASEDIR)/bin/chronicle_galaxy_clusters.sh . | sort -nr > $@
 
 download : galaxy-clusters-according-to-ned.txt 
-	find . -maxdepth 1 -name "*_*_*_*" -exec bash -c "grep '{}' $< > /dev/null && make -C '{}' download " \;
+	find . -maxdepth 1 -name "*_*_*_*" -exec bash -c "grep '{}' $< > /dev/null && make -C '{}' download" \;
+	touch $@
 
 analyze : galaxy-clusters-according-to-ned.txt $(MAKES) $(CHANDRA_MAKES) $(XMM_MAKES)
 	@for i in `cut -f2 $<` ; do \
