@@ -1,11 +1,17 @@
-#!/bin/sh
-
-
-function expand() {
-	ruby -e "puts File.expand_path(\"$1\")"
-}
+#!/bin/bash
 
 BIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+
+if [ -x ${BIN_DIR}/ruby ] ; then
+	RUBY=${BIN_DIR}/ruby
+elif [ -x `which ruby` ] ; then
+	RUBY=ruby
+fi
+
+function expand() {
+	${RUBY} -e "puts File.expand_path(\"$1\")"
+}
+
 if ([ ! ${BIN} ] || [ ! -d ${BIN} ]) && [ -d ${BIN_DIR} ] ; then 
 	export BIN=`expand ${BIN_DIR}`
 fi
@@ -42,9 +48,12 @@ fi
 if [ -d ${BIN}/../sas/CCF ] ; then
         export SAS_CCFPATH=`expand ${BIN}/../sas/CCF`
 else
-        echo NO CCF > /dev/stderr
-        echo I AM GOING TO DIE NOW > /dev/stderr
+        echo NO CCF found at ${BIN}/../sas/CCF "(RUBY VERSION ${RUBY})" - I AM GOING TO DIE NOW > /dev/stderr
         exit 1
+fi
+
+if [[ ! "${PATH}" =~ "${SAS_DIR}/bin" ]] ; then
+        export PATH=${SAS_DIR}/bin:${PATH}
 fi
 
 source $HEADAS/headas-init.sh

@@ -1,9 +1,21 @@
 RAWBASEDIR=../..
 include $(RAWBASEDIR)/maketemplates/master.mk 
 
-.PHONY : all empty empty/Makefile
+.PHONY : all empty empty/Makefile clean
 
 all : 
+
+makes : 
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make '{}'/Makefile  \; 
+
+science : makes 
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' science/Makefile \;
+
+clean : makes
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' clean \; 
+
+%/science/Makefile : % %/Makefile
+	make -C $< science/Makefile	
 
 %/Makefile : %
 	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
