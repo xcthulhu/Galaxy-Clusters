@@ -15,8 +15,8 @@ ifneq ($(strip $(XMM_OBSIDS)),)
 endif
 
 .PHONY: all clean
-
 .PRECIOUS: chandra XMM $(BASEDIR)/Data/nedshifts $(RAWBASEDIR)/Data/nedshifts/%.tsv 
+.DELETE_ON_ERROR: sources.txt unclustered_sources.txt
 
 all : $(CHANDRA_MAKE) $(XMM_MAKE) nedshifts.tsv sources.txt
 
@@ -33,11 +33,26 @@ chandra :
 XMM : 
 	mkdir $@
 
-sources.txt : chandra/sources.txt XMM/sources.txt
-	cat $^ | sort | uniq > $@
+unclustered_sources.txt : chandra/sources.txt XMM/sources.txt
+	cat $^ | sort | uniq > $@ && touch $@
+
+sources.txt : unclustered_sources.txt 
+	$(PYTHON) $(BIN)/cluster_srcs.py $(SOURCE_CLSTR_ARCSECS) $< > $@ && touch $@
 
 %/sources.txt : % %/Makefile
-	make -C $< sources.txt
+	make -C $< sources.txt && touch $@
+
+sources.sh : $(EVT2)
+	echo '#!/bin/bash' > $@
+	echo 'export LD_LIBRARY_PATH=${HOME}/lib:${HOME}/lib64' >> $@
+	echo "make -C $(CURDIR) sources.txt" >> $@
+	chmod +x $@
+
+%X.sh : %.sh
+	beo-gensge.pl -N $(patsubst %.sh,%,$@) -c ./$< -j n -o $(patsubst %.sh,%.out,$<) -e $(patsubst %.sh,%.error,$<) -t "2:00:00" -p n  
+
+%.out %.error : %X.sh
+	qsub $<
 
 # Rule for making $(NEDARCHIVE) ; "$(NEDARCHIVE):" doesn't work
 $(NEDARCHIVE) :
@@ -65,4 +80,4 @@ hst : $(RAWBASEDIR)/Data/HST-obs/$(notdir $(shell pwd))
 	echo include '$$(RAWBASEDIR)'/maketemplates/sat_analyze.mk >> $@
 
 clean :
-	rm -rf chandra XMM nedshifts.tsv
+	rm -rf chandra XMM nedshifts.tsv *sources* download

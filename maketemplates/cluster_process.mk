@@ -3,7 +3,7 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 .DELETE_ON_ERROR : galaxy-clusters-according-to-ned.txt 
 .PHONY : all analyze clean
 
-all : galaxy-clusters-according-to-ned.txt
+all : galaxy-clusters-according-to-ned.txt XMM_lookup.tsv chandra_lookup.tsv
 
 clean :
 	rm -f *.txt
@@ -32,6 +32,9 @@ nedshifts :
 %/nedshifts.tsv : %/Makefile
 	$(MAKE) -C $(dir $@) $(notdir $@)
 	touch $@
+
+XMM_lookup.tsv chandra_lookup.tsv :
+	grep $(@:_lookup.tsv=) */[0-9]*.tsv | tr '/' '\t' | cut -f1,5 > $@
 
 galaxy-clusters-according-to-ned.txt : nedshifts
 	$(BASEDIR)/bin/chronicle_galaxy_clusters_according_to_ned.sh $(LOWEST_Z) $(HIGHEST_Z) $(CLSTR_SZ) . | sort -nr > $@

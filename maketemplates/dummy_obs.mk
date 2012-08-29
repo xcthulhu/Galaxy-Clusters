@@ -1,7 +1,0 @@
-all :
-
-repro :
-
-work :
-
-clean :

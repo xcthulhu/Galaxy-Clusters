@@ -6,20 +6,19 @@ include $(RAWBASEDIR)/maketemplates/master.mk
 all : 
 
 makes : 
-	find . -maxdepth 1 -type d -name "[0-9]*" -exec make '{}'/Makefile  \; 
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make '{}'/Makefile \;
 
-science : makes 
-	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' science/Makefile \;
+all-% : 
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' $(patsubst all-%,%,$@) \;
 
-clean : makes
-	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' clean \; 
-
-%/science/Makefile : % %/Makefile
-	make -C $< science/Makefile	
+science-% : 
+	find . -maxdepth 1 -type d -name "[0-9]*" -exec make -C '{}' science/$(patsubst science-%,%,$@) \;
 
 %/Makefile : %
-	echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@
-	echo include '$$(RAWBASEDIR)'/maketemplates/XMM_individual.mk >> $@
+	if [ ! -f $</empty ] ; then \
+		echo 'RAWBASEDIR=$(RAWBASEDIR)/..' > $@ ; \
+		echo include '$$(RAWBASEDIR)'/maketemplates/XMM_individual.mk >> $@ ; \
+	fi
 
 % :
 	$(eval OBSURL := $(shell $(PYTHON) $(BASEDIR)/bin/get_XMM_obs_url.py $@))
@@ -36,4 +35,7 @@ clean : makes
 	else \
 		echo ">>> COULD NOT GET URL FOR OBSID \"$@\" <<<" ; \
 		echo "[SEE $(BASEDIR)/Data/XMM-obs/XSA-logs/$@.html for details]" ; \
+		echo ">>> LINKING empty/ to $@ <<<" ; \
+		echo ln -s empty $@ ; \
+		ln -s empty $@ ; \
 	fi
