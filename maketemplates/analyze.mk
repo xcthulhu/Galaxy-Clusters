@@ -34,13 +34,16 @@ XMM :
 	mkdir $@
 
 unclustered_sources.txt : chandra/sources.txt XMM/sources.txt
+	touch $^
 	cat $^ | sort | uniq > $@ && touch $@
 
 sources.txt : unclustered_sources.txt 
+	touch $^
 	$(PYTHON) $(BIN)/cluster_srcs.py $(SOURCE_CLSTR_ARCSECS) $< > $@ && touch $@
 
 %/sources.txt : % %/Makefile
-	make -C $< sources.txt && touch $@
+	make -C $< sources.txt 
+	[ -f $@ ] && touch $@
 
 sources.sh : $(EVT2)
 	echo '#!/bin/bash' > $@
@@ -49,7 +52,7 @@ sources.sh : $(EVT2)
 	chmod +x $@
 
 %X.sh : %.sh
-	beo-gensge.pl -N $(patsubst %.sh,%,$@) -c ./$< -j n -o $(patsubst %.sh,%.out,$<) -e $(patsubst %.sh,%.error,$<) -t "2:00:00" -p n  
+	beo-gensge.pl -N $(patsubst %.sh,%,$@) -c ./$< -j n -o $(patsubst %.sh,%.out,$<) -e $(patsubst %.sh,%.error,$<) -t "4:00:00" -p n  
 
 %.out %.error : %X.sh
 	qsub $<

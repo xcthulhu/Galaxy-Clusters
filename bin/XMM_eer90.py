@@ -62,11 +62,11 @@ def pns_eer90(e,d):
     # Interpolate the various 90% encircling energy radii
     if (0 <= d <= 12) :
 	    if (e <= 1.5) : return pns1_5(d)
-	    elif (1.5 <= e <= 5) : return pns1_5(d) * (e - 5) / (1.5 - 5) + pns5(d) * (e - 1.5) / (5 - 1.5)
-	    elif (5 <= e <= 9) : return pns5(d) * (e - 9.) / (5 - 9.) + pns9(d) * (e - 5.) / (9 - 5.)
+	    elif (1.5 <= e <= 5.) : return pns1_5(d) * (e - 5.) / (1.5 - 5.) + pns5(d) * (e - 1.5) / (5 - 1.5)
+	    elif (5. <= e <= 9.) : return pns5(d) * (e - 9.) / (5 - 9.) + pns9(d) * (e - 5.) / (9. - 5.)
 	    else : return pns9(d)
     else :
-	    return -1
+	    return -1.
 
 # Compute Distance from a FITS file
 def fits_dist(ra, dec, ra_nom, dec_nom):

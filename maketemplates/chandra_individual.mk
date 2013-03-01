@@ -32,7 +32,7 @@ science/Makefile : work/repro science
 	echo EVT2=$(patsubst work/%,%,$(wildcard work/*_repro_evt2.fits)) >> $@
 	echo include '$$(RAWBASEDIR)'/maketemplates/chandra_science.mk >> $@
 
-science/% : science science/Makefile
+science/%.txt : science science/Makefile
 	make -C $< $(notdir $@)
 
 work :

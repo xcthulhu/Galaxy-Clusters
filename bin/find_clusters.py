@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import csv,sys,os,cPickle,ephem
 import numpy as np
-from math import sqrt,sin,cos,atan2,pi,acos
+from numpy import sqrt,sin,cos,arctan2,pi,arccos
 from functools import partial
 from fastcluster import *
 from scipy.cluster.hierarchy import to_tree
@@ -21,7 +21,7 @@ def GalToRad(lon,lat) :
 # (same as greatCircleD but numerically stable)
 def Vincenty((phi1,lam1),(phi2,lam2)) :
 	dlam = lam1 - lam2
-	return atan2(sqrt((cos(phi2)*sin(dlam))**2 + (cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam))**2),
+	return arctan2(sqrt((cos(phi2)*sin(dlam))**2 + (cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam))**2),
                      sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(dlam))
 
 # Converts a line of data into a pair of coordinates

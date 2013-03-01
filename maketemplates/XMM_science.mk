@@ -1,5 +1,7 @@
 include $(RAWBASEDIR)/maketemplates/master.mk
 
+OBSID=$(notdir $(patsubst %/,%,$(dir $(CURDIR))))
+
 # GZipped Satellite Attitude file
 GZATT=$(wildcard ../pps/*ATT*.FTZ)
 
@@ -11,14 +13,6 @@ FILT_EVL = $(EVL:.FIT=_filt.fits)
 DS9_IMG_FILES = $(EVL:.FIT=_ds9_img.fits)
 DS9_IMG_PDFS = $(EVL:.FIT=_ds9_img.pdf)
 
-# Determine the ranges for various bands
-BOT=200
-B1END=500
-B2END=1000
-B3END=2000
-B4END=4500
-TOP=12000
-
 # From the eventfiles, we generate other files names, which describe bandpasses we will perform
 B1_BAND=$(EVL:.FIT=_b1_$(BOT)_$(B1END)_green_band_img.fits)
 B2_BAND=$(EVL:.FIT=_b2_$(B1END)_$(B2END)_red_band_img.fits)
@@ -29,20 +23,25 @@ FULL_BAND=$(EVL:.FIT=_full_$(BOT)_$(TOP)_white_band_img.fits)
 ALL_BANDS=$(B1_BAND) $(B2_BAND) $(B3_BAND) $(B4_BAND) $(B5_BAND) $(FULL_BAND)
 
 SOURCES=$(EVL:.FIT=_emllist.txt)
+SIZES=$(EVL:.FIT=_sizes.txt)
+
 
 .SECONDARY : 
 .PHONY: lightcurves gti filter
 .DELETE_ON_ERROR: $(SOURCES) source.txt
+
 ifeq ($(GZATT),)
 all : sources.txt
 sources.txt :
 	touch $@
+sizess:
+	@echo Not attitude file so nothing to do for source sizes in $(OBSID) > /dev/stderr
 
 else
 all : attds.fits sources.txt
 
 MOS1%.FIT MOS2%.FIT PN%.FIT : ../work/%.FIT ../work/epchain ../work/emchain
-	ln -sf $< $@
+	@if [ ! -h $@ ] || [ $(shell stat -L -c%i $@) != $(shell stat -c%i $<) ] ; then	echo ln -sf $< $@ ; ln -sf $< $@ ; fi
 
 ccf.cif : ../work/ccf.cif
 	ln -s $< $@
@@ -77,6 +76,14 @@ MOS%_gti.fits : MOS%_lightc.fits
 
 PN%_gti.fits : PN%_lightc.fits 
 	$(BIN)/pn_gti.sh $< $@
+
+PN%_sizes.txt : PN%.FIT master_sources.txt
+	@if [ ! -f $@ ] || [ `wc -l $@ | cut -d' ' -f1` != $(shell wc -l master_sources.txt | cut -d' ' -f1 ) ] ; then echo "$(PYTHON) $(BIN)/XMM_PNS_eer90.py $^ $(BANDS) > $@" ; $(PYTHON) $(BIN)/XMM_PNS_eer90.py $^ $(BANDS) > $@ ; else echo touch $@ ; touch $@ ; fi
+
+MOS%_sizes.txt : MOS%.FIT master_sources.txt
+	@if [ ! -f $@ ] || [ `wc -l $@ | cut -d' ' -f1` != $(shell wc -l master_sources.txt | cut -d' ' -f1 ) ] ; then echo "$(PYTHON) $(BIN)/XMM_MOS_eer90.py $^ $(BANDS) > $@" ; $(PYTHON) $(BIN)/XMM_PNS_eer90.py $^ $(BANDS) > $@ ; else echo touch $@ ; touch $@ ; fi
+
+sizess : $(SIZES)
 
 gti : $(GTI_FILES)
 
@@ -125,6 +132,18 @@ PN%_emllist.fits: PN%.FIT attds.fits PN%_b1_img.fits PN%_b2_img.fits PN%_b3_img.
 
 unclustered_sources.txt: $(SOURCES)
 	cat $^ | uniq > $@
+
+sizes.sh : $(EVT2)
+	echo '#!/bin/bash' > $@
+	echo 'export LD_LIBRARY_PATH=${HOME}/lib:${HOME}/lib64' >> $@
+	echo "make -C $(CURDIR) sizess" >> $@
+	chmod +x $@
+
+X$(OBSID)-%.sh : %.sh
+	beo-gensge.pl -N $(patsubst %.sh,%,$@) -c ./$< -j n -o $(patsubst %.sh,%.out,$<) -e $(patsubst %.sh,%.error,$<) -t "4:00:00" -p n  
+
+%.out %.error : X$(OBSID)-%.sh
+	qsub $<
 
 sources.txt : unclustered_sources.txt
 	$(PYTHON) $(BIN)/cluster_srcs.py $(SOURCE_CLSTR_ARCSECS) $< > $@

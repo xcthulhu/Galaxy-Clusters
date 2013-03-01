@@ -21,7 +21,7 @@ if __name__ == "__main__" :
 	dec = sys.argv[4]
 
 	if len(sys.argv) > 5:
-		energy = float( sys.argv[5] )
+		energy = float( sys.argv[5] ) / 1000.
 	else:
 		energy = def_en
 

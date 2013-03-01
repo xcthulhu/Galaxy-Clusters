@@ -21,6 +21,6 @@ if __name__ == "__main__":
 	# Compute the distance from each source to the boresight
 	dists = fits_dist(sources[:,0], sources[:,1], ra_nom, dec_nom) 
 	# Compute the 90% encircling energy radii
-	radii = np.hstack(map(lambda e : np.reshape(np.vectorize(mos_eer90)(e,dists),(-1,1)), energies)) 
+	radii = np.hstack([sources] + map(lambda e : np.reshape(np.vectorize(mos_eer90)(e,dists),(-1,1)), energies)) 
 	# Print the data to commandline
 	np.savetxt(sys.stdout,radii,fmt="%10f",delimiter="\t") 
